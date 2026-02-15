@@ -38,7 +38,7 @@ public class SimpleExampleAgentExecutorProducer {
             String name = textParts.get(textParts.size() - 1).text();
 
             // Simulate doing work with the LLM, and adding that as an artifact.
-            // In this case we just add "Hello <name>" to the list of aritfacts
+            // In this case we just add "Hello <name>" to the list of artifacts
             String response = "Hello " + name;
             emitter.addArtifact(Collections.singletonList(new TextPart(response)), null, "response", null);
 

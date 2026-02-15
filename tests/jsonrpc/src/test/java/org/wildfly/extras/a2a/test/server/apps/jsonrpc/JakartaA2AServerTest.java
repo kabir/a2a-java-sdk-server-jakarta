@@ -29,7 +29,7 @@ import org.jboss.arquillian.junit5.container.annotation.ArquillianTest;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.wildfly.extras.a2a.server.apps.jsonrpc.WildflyJSONRPCTransportMetadata;
+import org.wildfly.extras.a2a.server.apps.jsonrpc.WildFlyJSONRPCTransportMetadata;
 
 
 @ArquillianTest
@@ -83,8 +83,8 @@ public class JakartaA2AServerTest extends AbstractA2AServerTest {
                 getJarForClass(AnnotationsProto.class),
                 // guava.jar (required by a2a-java dependencies)
                 getJarForClass(ImmutableSet.class),
-                // a2a-java-sdk-jakarta-jsonrpc.jar - contains WildflyJSONRPCTransportMetadata
-                getJarForClass(WildflyJSONRPCTransportMetadata.class),
+                // a2a-java-sdk-jakarta-jsonrpc.jar - contains WildFlyJSONRPCTransportMetadata
+                getJarForClass(WildFlyJSONRPCTransportMetadata.class),
                 //a2a-java-sdk-microprofile-config.jar (needed to configure a2a-java settings via MP Config)
                 getJarForClass(MicroProfileConfigProvider.class),
                 // mutiny-zero.jar. This is provided by some WildFly layers, but not always, and not in

@@ -2,10 +2,7 @@ package org.wildfly.extras.a2a.server.apps.grpc;
 
 import java.util.concurrent.Executor;
 
-import jakarta.inject.Inject;
-
 import io.a2a.server.requesthandlers.RequestHandler;
-import io.a2a.server.util.async.Internal;
 import io.a2a.spec.AgentCard;
 import io.a2a.transport.grpc.handler.CallContextFactory;
 import io.a2a.transport.grpc.handler.GrpcHandler;

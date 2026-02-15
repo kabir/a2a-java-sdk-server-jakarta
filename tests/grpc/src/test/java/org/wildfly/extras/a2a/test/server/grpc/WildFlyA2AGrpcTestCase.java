@@ -67,7 +67,7 @@ public class WildFlyA2AGrpcTestCase extends AbstractA2AServerTest {
     @Deployment
     public static WebArchive createDeployment() throws Exception {
         final JavaArchive[] libraries = List.of(
-                // a2a-java-sdk-jakarta-grpc.jar - contains WildflyGrpcTransportMetadata
+                // a2a-java-sdk-jakarta-grpc.jar - contains WildFlyGrpcTransportMetadata
                 getJarForClass(WildFlyGrpcHandler.class),
                 // a2a-java-sdk-client.jar
                 getJarForClass(A2A.class),

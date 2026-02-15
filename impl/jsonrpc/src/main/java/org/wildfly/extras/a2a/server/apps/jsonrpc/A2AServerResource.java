@@ -73,7 +73,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Path("/")
-    public class A2AServerResource {
+public class A2AServerResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(A2AServerResource.class);
 
