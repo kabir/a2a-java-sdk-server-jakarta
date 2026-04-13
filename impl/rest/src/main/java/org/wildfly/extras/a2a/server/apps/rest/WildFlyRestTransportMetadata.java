@@ -1,7 +1,7 @@
 package org.wildfly.extras.a2a.server.apps.rest;
 
-import io.a2a.server.TransportMetadata;
-import io.a2a.spec.TransportProtocol;
+import org.a2aproject.sdk.server.TransportMetadata;
+import org.a2aproject.sdk.spec.TransportProtocol;
 
 public class WildFlyRestTransportMetadata implements TransportMetadata {
     @Override

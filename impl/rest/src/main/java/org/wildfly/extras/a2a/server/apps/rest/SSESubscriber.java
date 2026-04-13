@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.a2a.server.ServerCallContext;
-import io.a2a.server.util.sse.SseFormatter;
+import org.a2aproject.sdk.server.ServerCallContext;
+import org.a2aproject.sdk.server.util.sse.SseFormatter;
 
 class SSESubscriber implements Flow.Subscriber<String> {
 

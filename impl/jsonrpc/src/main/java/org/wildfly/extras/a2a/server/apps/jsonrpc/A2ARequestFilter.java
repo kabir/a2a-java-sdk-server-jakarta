@@ -1,16 +1,16 @@
 package org.wildfly.extras.a2a.server.apps.jsonrpc;
 
 
-import static io.a2a.spec.A2AMethods.CANCEL_TASK_METHOD;
-import static io.a2a.spec.A2AMethods.DELETE_TASK_PUSH_NOTIFICATION_CONFIG_METHOD;
-import static io.a2a.spec.A2AMethods.GET_EXTENDED_AGENT_CARD_METHOD;
-import static io.a2a.spec.A2AMethods.GET_TASK_METHOD;
-import static io.a2a.spec.A2AMethods.GET_TASK_PUSH_NOTIFICATION_CONFIG_METHOD;
-import static io.a2a.spec.A2AMethods.LIST_TASK_METHOD;
-import static io.a2a.spec.A2AMethods.LIST_TASK_PUSH_NOTIFICATION_CONFIG_METHOD;
-import static io.a2a.spec.A2AMethods.SEND_MESSAGE_METHOD;
-import static io.a2a.spec.A2AMethods.SEND_STREAMING_MESSAGE_METHOD;
-import static io.a2a.spec.A2AMethods.SET_TASK_PUSH_NOTIFICATION_CONFIG_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.CANCEL_TASK_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.DELETE_TASK_PUSH_NOTIFICATION_CONFIG_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.GET_EXTENDED_AGENT_CARD_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.GET_TASK_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.GET_TASK_PUSH_NOTIFICATION_CONFIG_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.LIST_TASK_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.LIST_TASK_PUSH_NOTIFICATION_CONFIG_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.SEND_MESSAGE_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.SEND_STREAMING_MESSAGE_METHOD;
+import static org.a2aproject.sdk.spec.A2AMethods.SET_TASK_PUSH_NOTIFICATION_CONFIG_METHOD;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import jakarta.ws.rs.container.PreMatching;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.ext.Provider;
 
-import io.a2a.spec.A2AMethods;
+import org.a2aproject.sdk.spec.A2AMethods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

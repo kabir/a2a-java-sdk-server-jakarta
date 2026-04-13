@@ -18,13 +18,13 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import io.a2a.jsonrpc.common.json.JsonUtil;
-import io.a2a.server.apps.common.TestUtilsBean;
-import io.a2a.spec.Task;
-import io.a2a.spec.TaskArtifactUpdateEvent;
-import io.a2a.spec.TaskPushNotificationConfig;
-import io.a2a.spec.TaskStatusUpdateEvent;
-import io.a2a.transport.grpc.handler.GrpcHandler;
+import org.a2aproject.sdk.jsonrpc.common.json.JsonUtil;
+import org.a2aproject.sdk.server.apps.common.TestUtilsBean;
+import org.a2aproject.sdk.spec.Task;
+import org.a2aproject.sdk.spec.TaskArtifactUpdateEvent;
+import org.a2aproject.sdk.spec.TaskPushNotificationConfig;
+import org.a2aproject.sdk.spec.TaskStatusUpdateEvent;
+import org.a2aproject.sdk.transport.grpc.handler.GrpcHandler;
 
 @Path("/test")
 @ApplicationScoped

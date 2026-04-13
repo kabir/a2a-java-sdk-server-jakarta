@@ -1,8 +1,8 @@
 package org.wildfly.extras.a2a.server.apps.jsonrpc;
 
-import static io.a2a.server.ServerCallContext.TRANSPORT_KEY;
-import static io.a2a.transport.jsonrpc.context.JSONRPCContextKeys.HEADERS_KEY;
-import static io.a2a.transport.jsonrpc.context.JSONRPCContextKeys.TENANT_KEY;
+import static org.a2aproject.sdk.server.ServerCallContext.TRANSPORT_KEY;
+import static org.a2aproject.sdk.transport.jsonrpc.context.JSONRPCContextKeys.HEADERS_KEY;
+import static org.a2aproject.sdk.transport.jsonrpc.context.JSONRPCContextKeys.TENANT_KEY;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,47 +36,47 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import com.google.gson.JsonSyntaxException;
-import io.a2a.common.A2AHeaders;
-import io.a2a.grpc.utils.JSONRPCUtils;
-import io.a2a.grpc.utils.ProtoUtils;
-import io.a2a.jsonrpc.common.json.IdJsonMappingException;
-import io.a2a.jsonrpc.common.json.InvalidParamsJsonMappingException;
-import io.a2a.jsonrpc.common.json.JsonMappingException;
-import io.a2a.jsonrpc.common.json.JsonProcessingException;
-import io.a2a.jsonrpc.common.json.MethodNotFoundJsonMappingException;
-import io.a2a.jsonrpc.common.wrappers.A2AErrorResponse;
-import io.a2a.jsonrpc.common.wrappers.A2ARequest;
-import io.a2a.jsonrpc.common.wrappers.A2AResponse;
-import io.a2a.jsonrpc.common.wrappers.CancelTaskRequest;
-import io.a2a.jsonrpc.common.wrappers.CreateTaskPushNotificationConfigRequest;
-import io.a2a.jsonrpc.common.wrappers.DeleteTaskPushNotificationConfigRequest;
-import io.a2a.jsonrpc.common.wrappers.GetExtendedAgentCardRequest;
-import io.a2a.jsonrpc.common.wrappers.GetTaskPushNotificationConfigRequest;
-import io.a2a.jsonrpc.common.wrappers.GetTaskRequest;
-import io.a2a.jsonrpc.common.wrappers.ListTaskPushNotificationConfigsRequest;
-import io.a2a.jsonrpc.common.wrappers.ListTasksRequest;
-import io.a2a.jsonrpc.common.wrappers.NonStreamingJSONRPCRequest;
-import io.a2a.jsonrpc.common.wrappers.SendMessageRequest;
-import io.a2a.jsonrpc.common.wrappers.SendStreamingMessageRequest;
-import io.a2a.jsonrpc.common.wrappers.StreamingJSONRPCRequest;
-import io.a2a.jsonrpc.common.wrappers.SubscribeToTaskRequest;
-import io.a2a.server.ExtendedAgentCard;
-import io.a2a.server.ServerCallContext;
-import io.a2a.server.auth.UnauthenticatedUser;
-import io.a2a.server.auth.User;
-import io.a2a.server.extensions.A2AExtensions;
-import io.a2a.server.util.async.Internal;
-import io.a2a.server.util.sse.SseFormatter;
-import io.a2a.spec.A2AError;
-import io.a2a.spec.AgentCard;
-import io.a2a.spec.InternalError;
-import io.a2a.spec.InvalidParamsError;
-import io.a2a.spec.InvalidRequestError;
-import io.a2a.spec.JSONParseError;
-import io.a2a.spec.MethodNotFoundError;
-import io.a2a.spec.TransportProtocol;
-import io.a2a.spec.UnsupportedOperationError;
-import io.a2a.transport.jsonrpc.handler.JSONRPCHandler;
+import org.a2aproject.sdk.common.A2AHeaders;
+import org.a2aproject.sdk.grpc.utils.JSONRPCUtils;
+import org.a2aproject.sdk.grpc.utils.ProtoUtils;
+import org.a2aproject.sdk.jsonrpc.common.json.IdJsonMappingException;
+import org.a2aproject.sdk.jsonrpc.common.json.InvalidParamsJsonMappingException;
+import org.a2aproject.sdk.jsonrpc.common.json.JsonMappingException;
+import org.a2aproject.sdk.jsonrpc.common.json.JsonProcessingException;
+import org.a2aproject.sdk.jsonrpc.common.json.MethodNotFoundJsonMappingException;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.A2AErrorResponse;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.A2ARequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.A2AResponse;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.CancelTaskRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.CreateTaskPushNotificationConfigRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.DeleteTaskPushNotificationConfigRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.GetExtendedAgentCardRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.GetTaskPushNotificationConfigRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.GetTaskRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.ListTaskPushNotificationConfigsRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.ListTasksRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.NonStreamingJSONRPCRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.SendMessageRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.SendStreamingMessageRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.StreamingJSONRPCRequest;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.SubscribeToTaskRequest;
+import org.a2aproject.sdk.server.ExtendedAgentCard;
+import org.a2aproject.sdk.server.ServerCallContext;
+import org.a2aproject.sdk.server.auth.UnauthenticatedUser;
+import org.a2aproject.sdk.server.auth.User;
+import org.a2aproject.sdk.server.extensions.A2AExtensions;
+import org.a2aproject.sdk.server.util.async.Internal;
+import org.a2aproject.sdk.server.util.sse.SseFormatter;
+import org.a2aproject.sdk.spec.A2AError;
+import org.a2aproject.sdk.spec.AgentCard;
+import org.a2aproject.sdk.spec.InternalError;
+import org.a2aproject.sdk.spec.InvalidParamsError;
+import org.a2aproject.sdk.spec.InvalidRequestError;
+import org.a2aproject.sdk.spec.JSONParseError;
+import org.a2aproject.sdk.spec.MethodNotFoundError;
+import org.a2aproject.sdk.spec.TransportProtocol;
+import org.a2aproject.sdk.spec.UnsupportedOperationError;
+import org.a2aproject.sdk.transport.jsonrpc.handler.JSONRPCHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +151,7 @@ public class A2AServerResource {
         // Serialize response using protobuf conversion
         String serialized = serializeResponse(response);
 
-        String contentType = io.a2a.common.MediaType.APPLICATION_JSON;
+        String contentType = org.a2aproject.sdk.common.MediaType.APPLICATION_JSON;
 
         // Return Response with explicit content-type header
         return Response.status(Response.Status.OK)
@@ -223,6 +223,9 @@ public class A2AServerResource {
         } catch (JsonProcessingException e) {
             LOGGER.warn("JSON processing error in streaming request: {}", e.getMessage());
             sendErrorSSE(response, null, new JSONParseError());
+        } catch (A2AError e) {
+            LOGGER.debug("A2AError in streaming request: {}", e.getMessage());
+            sendErrorSSE(response, request != null ? request.getId() : null, e);
         } catch (Throwable e) {
             LOGGER.error("Unexpected error processing streaming request: {}", e.getMessage(), e);
             sendErrorSSE(response, null, new InternalError(e.getMessage()));
@@ -522,26 +525,26 @@ public class A2AServerResource {
      * Converts A2A response objects to their protobuf equivalents.
      */
     private static com.google.protobuf.MessageOrBuilder convertToProto(A2AResponse<?> response) {
-        if (response instanceof io.a2a.jsonrpc.common.wrappers.GetTaskResponse r) {
+        if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.GetTaskResponse r) {
             return ProtoUtils.ToProto.task(r.getResult());
-        } else if (response instanceof io.a2a.jsonrpc.common.wrappers.CancelTaskResponse r) {
+        } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.CancelTaskResponse r) {
             return ProtoUtils.ToProto.task(r.getResult());
-        } else if (response instanceof io.a2a.jsonrpc.common.wrappers.SendMessageResponse r) {
+        } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.SendMessageResponse r) {
             return ProtoUtils.ToProto.taskOrMessage(r.getResult());
-        } else if (response instanceof io.a2a.jsonrpc.common.wrappers.ListTasksResponse r) {
+        } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.ListTasksResponse r) {
             return ProtoUtils.ToProto.listTasksResult(r.getResult());
-        } else if (response instanceof io.a2a.jsonrpc.common.wrappers.CreateTaskPushNotificationConfigResponse r) {
+        } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.CreateTaskPushNotificationConfigResponse r) {
             return ProtoUtils.ToProto.createTaskPushNotificationConfigResponse(r.getResult());
-        } else if (response instanceof io.a2a.jsonrpc.common.wrappers.GetTaskPushNotificationConfigResponse r) {
+        } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.GetTaskPushNotificationConfigResponse r) {
             return ProtoUtils.ToProto.getTaskPushNotificationConfigResponse(r.getResult());
-        } else if (response instanceof io.a2a.jsonrpc.common.wrappers.ListTaskPushNotificationConfigsResponse r) {
+        } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.ListTaskPushNotificationConfigsResponse r) {
             return ProtoUtils.ToProto.listTaskPushNotificationConfigsResponse(r.getResult());
-        } else if (response instanceof io.a2a.jsonrpc.common.wrappers.DeleteTaskPushNotificationConfigResponse) {
+        } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.DeleteTaskPushNotificationConfigResponse) {
             // DeleteTaskPushNotificationConfig has no result body, just return empty message
             return com.google.protobuf.Empty.getDefaultInstance();
-        } else if (response instanceof io.a2a.jsonrpc.common.wrappers.GetExtendedAgentCardResponse r) {
+        } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.GetExtendedAgentCardResponse r) {
             return ProtoUtils.ToProto.getExtendedCardResponse(r.getResult());
-        } else if (response instanceof io.a2a.jsonrpc.common.wrappers.SendStreamingMessageResponse r) {
+        } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.SendStreamingMessageResponse r) {
             return ProtoUtils.ToProto.taskOrMessageStream(r.getResult());
         } else {
             throw new IllegalArgumentException("Unknown response type: " + response.getClass().getName());

@@ -1,8 +1,8 @@
 package org.wildfly.extras.a2a.server.apps.rest;
 
-import static io.a2a.server.ServerCallContext.TRANSPORT_KEY;
-import static io.a2a.transport.rest.context.RestContextKeys.HEADERS_KEY;
-import static io.a2a.transport.rest.context.RestContextKeys.TENANT_KEY;
+import static org.a2aproject.sdk.server.ServerCallContext.TRANSPORT_KEY;
+import static org.a2aproject.sdk.transport.rest.context.RestContextKeys.HEADERS_KEY;
+import static org.a2aproject.sdk.transport.rest.context.RestContextKeys.TENANT_KEY;
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -38,17 +38,18 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
-import io.a2a.common.A2AHeaders;
-import io.a2a.server.ExtendedAgentCard;
-import io.a2a.server.ServerCallContext;
-import io.a2a.server.auth.UnauthenticatedUser;
-import io.a2a.server.auth.User;
-import io.a2a.server.extensions.A2AExtensions;
-import io.a2a.server.util.async.Internal;
-import io.a2a.spec.AgentCard;
-import io.a2a.spec.InvalidParamsError;
-import io.a2a.spec.TransportProtocol;
-import io.a2a.transport.rest.handler.RestHandler;
+import org.a2aproject.sdk.common.A2AHeaders;
+import org.a2aproject.sdk.server.ExtendedAgentCard;
+import org.a2aproject.sdk.server.ServerCallContext;
+import org.a2aproject.sdk.server.auth.UnauthenticatedUser;
+import org.a2aproject.sdk.server.auth.User;
+import org.a2aproject.sdk.server.extensions.A2AExtensions;
+import org.a2aproject.sdk.server.util.async.Internal;
+import org.a2aproject.sdk.spec.A2AError;
+import org.a2aproject.sdk.spec.AgentCard;
+import org.a2aproject.sdk.spec.InvalidParamsError;
+import org.a2aproject.sdk.spec.TransportProtocol;
+import org.a2aproject.sdk.transport.rest.handler.RestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,8 +95,10 @@ public class A2ARestServerResource {
         RestHandler.HTTPRestResponse response = null;
         try {
             response = jsonRestHandler.sendMessage(context, extractTenant(httpRequest), body);
+        } catch (A2AError e) {
+            response = jsonRestHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new io.a2a.spec.InternalError(t.getMessage()));
+            response = jsonRestHandler.createErrorResponse(new org.a2aproject.sdk.spec.InternalError(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -255,8 +258,10 @@ public class A2ARestServerResource {
             response = jsonRestHandler.createErrorResponse(new InvalidParamsError("Invalid number format in parameters"));
         } catch (IllegalArgumentException e) {
             response = jsonRestHandler.createErrorResponse(new InvalidParamsError("Invalid parameter value: " + e.getMessage()));
+        } catch (A2AError e) {
+            response = jsonRestHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new io.a2a.spec.InternalError(t.getMessage()));
+            response = jsonRestHandler.createErrorResponse(new org.a2aproject.sdk.spec.InternalError(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -280,8 +285,10 @@ public class A2ARestServerResource {
             response = jsonRestHandler.getTask(context, extractTenant(httpRequest), taskId, historyLength);
         } catch (NumberFormatException e) {
             response = jsonRestHandler.createErrorResponse(new InvalidParamsError("bad historyLength"));
+        } catch (A2AError e) {
+            response = jsonRestHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new io.a2a.spec.InternalError(t.getMessage()));
+            response = jsonRestHandler.createErrorResponse(new org.a2aproject.sdk.spec.InternalError(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -298,8 +305,10 @@ public class A2ARestServerResource {
         RestHandler.HTTPRestResponse response = null;
         try {
             response = jsonRestHandler.cancelTask(context, extractTenant(httpRequest), body, taskId);
+        } catch (A2AError e) {
+            response = jsonRestHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new io.a2a.spec.InternalError(t.getMessage()));
+            response = jsonRestHandler.createErrorResponse(new org.a2aproject.sdk.spec.InternalError(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -316,8 +325,10 @@ public class A2ARestServerResource {
         RestHandler.HTTPRestResponse response = null;
         try {
             response = jsonRestHandler.createTaskPushNotificationConfiguration(context, extractTenant(httpRequest), body, taskId);
+        } catch (A2AError e) {
+            response = jsonRestHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new io.a2a.spec.InternalError(t.getMessage()));
+            response = jsonRestHandler.createErrorResponse(new org.a2aproject.sdk.spec.InternalError(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -334,8 +345,10 @@ public class A2ARestServerResource {
         RestHandler.HTTPRestResponse response = null;
         try {
             response = jsonRestHandler.getTaskPushNotificationConfiguration(context, extractTenant(httpRequest), taskId, configId);
+        } catch (A2AError e) {
+            response = jsonRestHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new io.a2a.spec.InternalError(t.getMessage()));
+            response = jsonRestHandler.createErrorResponse(new org.a2aproject.sdk.spec.InternalError(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -376,8 +389,10 @@ public class A2ARestServerResource {
             }
         } catch (NumberFormatException e) {
             response = jsonRestHandler.createErrorResponse(new InvalidParamsError("bad " + PAGE_SIZE_PARAM));
+        } catch (A2AError e) {
+            response = jsonRestHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new io.a2a.spec.InternalError(t.getMessage()));
+            response = jsonRestHandler.createErrorResponse(new org.a2aproject.sdk.spec.InternalError(t.getMessage()));
         }
         return Response.status(response.getStatusCode())
                 .header(CONTENT_TYPE, response.getContentType())
@@ -393,8 +408,10 @@ public class A2ARestServerResource {
         RestHandler.HTTPRestResponse response = null;
         try {
             response = jsonRestHandler.deleteTaskPushNotificationConfiguration(context, extractTenant(httpRequest), taskId, configId);
+        } catch (A2AError e) {
+            response = jsonRestHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new io.a2a.spec.InternalError(t.getMessage()));
+            response = jsonRestHandler.createErrorResponse(new org.a2aproject.sdk.spec.InternalError(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())

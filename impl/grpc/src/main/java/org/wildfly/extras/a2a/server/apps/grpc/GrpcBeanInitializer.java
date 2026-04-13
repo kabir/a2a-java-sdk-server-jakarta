@@ -9,12 +9,12 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
-import io.a2a.server.ExtendedAgentCard;
-import io.a2a.server.PublicAgentCard;
-import io.a2a.server.requesthandlers.RequestHandler;
-import io.a2a.server.util.async.Internal;
-import io.a2a.spec.AgentCard;
-import io.a2a.transport.grpc.handler.CallContextFactory;
+import org.a2aproject.sdk.server.ExtendedAgentCard;
+import org.a2aproject.sdk.server.PublicAgentCard;
+import org.a2aproject.sdk.server.requesthandlers.RequestHandler;
+import org.a2aproject.sdk.server.util.async.Internal;
+import org.a2aproject.sdk.spec.AgentCard;
+import org.a2aproject.sdk.transport.grpc.handler.CallContextFactory;
 
 /**
  * Bean initializer that observes application startup events.
@@ -62,7 +62,7 @@ public class GrpcBeanInitializer {
             // Without this, if ClientBuilder loads earlier with the wrong TCCL, the static registry
             // won't contain the gRPC transport provider
             try {
-                Class.forName("io.a2a.client.ClientBuilder", true, deploymentClassLoader);
+                Class.forName("org.a2aproject.sdk.client.ClientBuilder", true, deploymentClassLoader);
             } catch (ClassNotFoundException e) {
                 // ClientBuilder not in deployment, ignore
             }

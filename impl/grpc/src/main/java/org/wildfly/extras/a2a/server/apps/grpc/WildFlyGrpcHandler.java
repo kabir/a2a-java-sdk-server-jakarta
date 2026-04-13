@@ -3,26 +3,26 @@ package org.wildfly.extras.a2a.server.apps.grpc;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 
-import io.a2a.jsonrpc.common.wrappers.ListTasksResult;
-import io.a2a.server.ServerCallContext;
-import io.a2a.server.requesthandlers.RequestHandler;
-import io.a2a.spec.A2AError;
-import io.a2a.spec.AgentCard;
-import io.a2a.spec.CancelTaskParams;
-import io.a2a.spec.DeleteTaskPushNotificationConfigParams;
-import io.a2a.spec.EventKind;
-import io.a2a.spec.GetTaskPushNotificationConfigParams;
-import io.a2a.spec.ListTaskPushNotificationConfigsParams;
-import io.a2a.spec.ListTaskPushNotificationConfigsResult;
-import io.a2a.spec.ListTasksParams;
-import io.a2a.spec.MessageSendParams;
-import io.a2a.spec.StreamingEventKind;
-import io.a2a.spec.Task;
-import io.a2a.spec.TaskIdParams;
-import io.a2a.spec.TaskPushNotificationConfig;
-import io.a2a.spec.TaskQueryParams;
-import io.a2a.transport.grpc.handler.CallContextFactory;
-import io.a2a.transport.grpc.handler.GrpcHandler;
+import org.a2aproject.sdk.jsonrpc.common.wrappers.ListTasksResult;
+import org.a2aproject.sdk.server.ServerCallContext;
+import org.a2aproject.sdk.server.requesthandlers.RequestHandler;
+import org.a2aproject.sdk.spec.A2AError;
+import org.a2aproject.sdk.spec.AgentCard;
+import org.a2aproject.sdk.spec.CancelTaskParams;
+import org.a2aproject.sdk.spec.DeleteTaskPushNotificationConfigParams;
+import org.a2aproject.sdk.spec.EventKind;
+import org.a2aproject.sdk.spec.GetTaskPushNotificationConfigParams;
+import org.a2aproject.sdk.spec.ListTaskPushNotificationConfigsParams;
+import org.a2aproject.sdk.spec.ListTaskPushNotificationConfigsResult;
+import org.a2aproject.sdk.spec.ListTasksParams;
+import org.a2aproject.sdk.spec.MessageSendParams;
+import org.a2aproject.sdk.spec.StreamingEventKind;
+import org.a2aproject.sdk.spec.Task;
+import org.a2aproject.sdk.spec.TaskIdParams;
+import org.a2aproject.sdk.spec.TaskPushNotificationConfig;
+import org.a2aproject.sdk.spec.TaskQueryParams;
+import org.a2aproject.sdk.transport.grpc.handler.CallContextFactory;
+import org.a2aproject.sdk.transport.grpc.handler.GrpcHandler;
 
 /**
  * WildFly gRPC Handler that uses static cache for CDI beans.
