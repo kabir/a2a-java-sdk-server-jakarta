@@ -2,7 +2,7 @@
 
 This is the integration of the [A2A Java SDK](https://github.com/a2aproject/a2a-java) for use in Jakarta servers. It is currently tested on **WildFly**, but it should be usable in other compliant Jakarta servers such as Tomcat, Jetty, and OpenLiberty. For Quarkus, use the reference implementation in the [A2A Java SDK](https://github.com/a2aproject/a2a-java) project.
 
-This implementation is aligned with **A2A Protocol Specification 1.0** and uses **A2A Java SDK 1.0.0.Alpha2** (pre-release).
+This implementation is aligned with **A2A Protocol Specification 1.0** and uses **A2A Java SDK 1.0.0.CR1**.
 
 For more information about the A2A protocol, see [here](https://github.com/a2aproject/A2A).
 
@@ -43,11 +43,11 @@ In the `tck/pom.xml` we enable both JSON-RPC and gRPC, and have the following de
 
 * `org.wildfly.a2a:a2a-java-sdk-jakarta-jsonrpc` - this is the dependency for **JSON-RPC** support. It transitively pulls in all the dependencies from the A2A Java SDK project.
     * Since some of these dependencies are provided by WildFly already, we exclude those so they do not become part of the `.war`, in order to avoid inconsistencies. If you only want to support gRPC, you can omit this dependency.
-* `org.wildfly.a2a:a2a-java-sdk-server-jakarta-grpc` - this is the dependency for **gRPC** support.
+* `org.wildfly.a2a:a2a-java-sdk-jakarta-grpc` - this is the dependency for **gRPC** support.
     * We exclude the gRPC core libraries (`io.grpc` and `com.google.protobuf:protobuf-java`). This is because when deploying to WildFly with gRPC support, the server is provisioned with the WildFly gRPC feature-pack, which already provides these libraries. Including them in the `.war` would lead to conflicts. If you only want to support JSON-RPC, you can omit this dependency.
 * `jakarta.ws.rs:jakarta.ws.rs-api` - this is not part of the dependencies brought in via the A2A dependencies but is needed to compile the TCK module. Since it is provided by WildFly, we make the scope `provided` so it is not included in the `.war`.
 * `org.a2aproject.sdk:a2a-java-sdk-tck-sut` - this is the application, which contains the `AgentExecutor` and `AgentCard` implementations for the TCK. In your case, they will most likely be implemented in the project you use to create the `.war`.
-    * In this case we exclude all transitive dependencies, since we are doing the main dependency management via the `org.wildfly.a2a:a2a-java-sdk-jakarta-jsonrpc` and `org.wildfly.a2a:a2a-java-sdk-server-jakarta-grpc` dependencies.
+    * In this case we exclude all transitive dependencies, since we are doing the main dependency management via the `org.wildfly.a2a:a2a-java-sdk-jakarta-jsonrpc` and `org.wildfly.a2a:a2a-java-sdk-jakarta-grpc` dependencies.
 
 If you are deploying to WildFly and want to use gRPC, you will also need to provision the server with the gRPC feature pack. You can see how this is done in the `wildfly-maven-plugin` configuration in the `tck/pom.xml`. Since the gRPC subsystem and feature pack are currently at the `preview` stability level, you will need to start the server with the `--stability=preview` argument.
 
