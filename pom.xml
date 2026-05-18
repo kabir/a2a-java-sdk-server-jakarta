@@ -19,7 +19,7 @@
     <name>WildFly Extras - Java A2A SDK for Jakarta Parent</name>
     <description>Java SDK for the Agent2Agent Protocol (A2A) - SDK - Jakarta - Parent</description>
 
-    <url>https://github.com/wildfly-extras/a2a-java-sdk-jakarta</url>
+    <url>https://github.com/wildfly-extras/a2a-java-sdk-server-jakarta</url>
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
@@ -32,14 +32,14 @@
             <id>a2a-java-sdk-jakarta</id>
             <name>The WildFly developers</name>
             <organization>wildfly-extras</organization>
-            <organizationUrl>https://github.com/wildfly-extras/a2a-java-sdk-jakarta</organizationUrl>
+            <organizationUrl>https://github.com/wildfly-extras/a2a-java-sdk-server-jakarta</organizationUrl>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/wildfly-extras/a2a-java-sdk-jakarta.git</connection>
-        <developerConnection>scm:git:ssh://github.com:wildfly-extras/a2a-java-sdk-jakarta.git</developerConnection>
-        <url>https://github.com/wildfly-extras/a2a-java-sdk-jakarta</url>
+        <connection>scm:git:git://github.com/wildfly-extras/a2a-java-sdk-server-jakarta.git</connection>
+        <developerConnection>scm:git:ssh://github.com:wildfly-extras/a2a-java-sdk-server-jakarta.git</developerConnection>
+        <url>https://github.com/wildfly-extras/a2a-java-sdk-server-jakarta</url>
     </scm>
 
     <properties>
