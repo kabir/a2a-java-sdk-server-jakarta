@@ -22,9 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -41,7 +41,7 @@ jobs:
           fi
       - name: Checkout a2a-java
         if: env.IS_SNAPSHOT == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: a2aproject/a2a-java
           path: a2a-java
@@ -137,7 +137,7 @@ jobs:
           fi
       - name: Upload WildFly logs on test failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wildfly-logs
           path: |
