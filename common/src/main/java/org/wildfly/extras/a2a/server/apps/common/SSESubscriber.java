@@ -2,7 +2,7 @@
  * Copyright The WildFly Authors
  * SPDX-License-Identifier: Apache-2.0
  */
-package org.wildfly.extras.a2a.server.apps.rest;
+package org.wildfly.extras.a2a.server.apps.common;
 
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.a2aproject.sdk.server.ServerCallContext;
 import org.a2aproject.sdk.server.util.sse.SseFormatter;
 
-class SSESubscriber implements Flow.Subscriber<String> {
+public class SSESubscriber implements Flow.Subscriber<String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SSESubscriber.class);
     // Hook so testing can wait until the async Subscription is subscribed.

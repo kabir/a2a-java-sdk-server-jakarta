@@ -39,6 +39,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import org.a2aproject.sdk.common.A2AHeaders;
+import org.wildfly.extras.a2a.server.apps.common.SSESubscriber;
 import org.a2aproject.sdk.server.ExtendedAgentCard;
 import org.a2aproject.sdk.server.ServerCallContext;
 import org.a2aproject.sdk.server.auth.UnauthenticatedUser;
@@ -76,8 +77,6 @@ public class A2ARestServerResource {
     @Internal
     Executor executor;
 
-    @Inject
-    Instance<CallContextFactory> callContextFactory;
 
     /**
      * Handles incoming POST requests to the main A2A endpoint.Dispatches the
@@ -455,52 +454,43 @@ public class A2ARestServerResource {
     }
 
     private ServerCallContext createCallContext(HttpServletRequest request, SecurityContext securityContext) {
+        User user;
 
-        if (callContextFactory.isUnsatisfied()) {
-            User user;
-
-            if (securityContext.getUserPrincipal() == null) {
-                user = UnauthenticatedUser.INSTANCE;
-            } else {
-                user = new User() {
-                    @Override
-                    public boolean isAuthenticated() {
-                        return true;
-                    }
-
-                    @Override
-                    public String getUsername() {
-                        return securityContext.getUserPrincipal().getName();
-                    }
-                };
-            }
-            Map<String, Object> state = new HashMap<>();
-            // TODO Python's impl has
-            //    state['auth'] = request.auth
-            //  in jsonrpc_app.py. Figure out what this maps to in what we have here
-
-            Map<String, String> headers = new HashMap<>();
-            for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
-                String name = headerNames.nextElement();
-                headers.put(name, request.getHeader(name));
-            }
-
-            state.put(HEADERS_KEY, headers);
-            state.put(TENANT_KEY, extractTenant(request));
-            state.put(TRANSPORT_KEY, TransportProtocol.HTTP_JSON);
-
-            Enumeration<String> en = request.getHeaders(A2AHeaders.A2A_EXTENSIONS);
-            List<String> extensionHeaderValues = new ArrayList<>();
-            while (en.hasMoreElements()) {
-                extensionHeaderValues.add(en.nextElement());
-            }
-            Set<String> requestedExtensions = A2AExtensions.getRequestedExtensions(extensionHeaderValues);
-            String requestedVersion = request.getHeader(A2AHeaders.A2A_VERSION);
-            return new ServerCallContext(user, state, requestedExtensions, requestedVersion);
+        if (securityContext.getUserPrincipal() == null) {
+            user = UnauthenticatedUser.INSTANCE;
         } else {
-            CallContextFactory builder = callContextFactory.get();
-            return builder.build(request);
+            user = new User() {
+                @Override
+                public boolean isAuthenticated() {
+                    return true;
+                }
+
+                @Override
+                public String getUsername() {
+                    return securityContext.getUserPrincipal().getName();
+                }
+            };
         }
+        Map<String, Object> state = new HashMap<>();
+
+        Map<String, String> headers = new HashMap<>();
+        for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+            String name = headerNames.nextElement();
+            headers.put(name, request.getHeader(name));
+        }
+
+        state.put(HEADERS_KEY, headers);
+        state.put(TENANT_KEY, extractTenant(request));
+        state.put(TRANSPORT_KEY, TransportProtocol.HTTP_JSON);
+
+        Enumeration<String> en = request.getHeaders(A2AHeaders.A2A_EXTENSIONS);
+        List<String> extensionHeaderValues = new ArrayList<>();
+        while (en.hasMoreElements()) {
+            extensionHeaderValues.add(en.nextElement());
+        }
+        Set<String> requestedExtensions = A2AExtensions.getRequestedExtensions(extensionHeaderValues);
+        String requestedVersion = request.getHeader(A2AHeaders.A2A_VERSION);
+        return new ServerCallContext(user, state, requestedExtensions, requestedVersion);
     }
 
     private String extractTenant(HttpServletRequest request) {

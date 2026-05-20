@@ -39,5 +39,7 @@
         <module>jsonrpc</module>
         <module>grpc</module>
         <module>rest</module>
+        <module>compat-0.3</module>
+        <module>multiversion</module>
     </modules>
 </project>
