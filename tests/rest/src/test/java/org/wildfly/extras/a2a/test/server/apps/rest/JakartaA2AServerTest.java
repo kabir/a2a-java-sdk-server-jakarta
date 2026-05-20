@@ -38,6 +38,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.jupiter.api.Test;
 import org.wildfly.extras.a2a.server.apps.common.SSESubscriber;
 import org.wildfly.extras.a2a.server.apps.rest.A2ARestServerResource;
+import org.wildfly.extras.a2a.server.apps.rest.A2ARestServerResourceDelegate;
 
 
 @ArquillianTest
@@ -93,7 +94,9 @@ public class JakartaA2AServerTest extends AbstractA2AServerTest {
                 getJarForClass(ImmutableSet.class),
                 // a2a-java-sdk-jakarta-common.jar - contains SSESubscriber
                 getJarForClass(SSESubscriber.class),
-                // a2a-java-sdk-jakarta-rest.jar - contains WildFlyRestTransportMetadata
+                // a2a-java-sdk-jakarta-rest.jar - contains delegate
+                getJarForClass(A2ARestServerResourceDelegate.class),
+                // a2a-java-sdk-jakarta-rest-web.jar - contains A2ARestServerResource
                 getJarForClass(A2ARestServerResource.class),
                 //a2a-java-sdk-microprofile-config.jar (needed to configure a2a-java settings via MP Config)
                 getJarForClass(MicroProfileConfigProvider.class),

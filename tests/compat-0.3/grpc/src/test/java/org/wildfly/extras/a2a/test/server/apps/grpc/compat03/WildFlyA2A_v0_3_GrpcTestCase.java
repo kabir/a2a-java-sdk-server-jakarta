@@ -41,6 +41,7 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.jupiter.api.AfterAll;
 import org.wildfly.extras.a2a.server.apps.grpc.compat03.WildFlyGrpcHandler_v0_3;
+import org.wildfly.extras.a2a.server.apps.jsonrpc.compat03.A2AServerResourceDelegate_v0_3;
 import org.wildfly.extras.a2a.server.apps.jsonrpc.compat03.A2AServerResource_v0_3;
 
 @ArquillianTest
@@ -74,11 +75,7 @@ public class WildFlyA2A_v0_3_GrpcTestCase extends AbstractA2AServerServerTest_v0
 
     @Deployment
     public static WebArchive createDeployment() throws Exception {
-        // Include v0.3 test-jar but remove AgentExecutorProducer_v0_3 to avoid
-        // CDI ambiguity with the v1.0 AgentExecutorProducer from addPackage below
         JavaArchive v03TestJar = getJarForClass(AbstractA2AServerServerTest_v0_3.class);
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3.class");
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3$1.class");
 
         JavaArchive specGrpcJar = getJarForClass(JSONRPCUtils.class);
         specGrpcJar.delete("/org/a2aproject/sdk/grpc/A2AServiceGrpc$A2AServiceImplBase.class");
@@ -86,7 +83,9 @@ public class WildFlyA2A_v0_3_GrpcTestCase extends AbstractA2AServerServerTest_v0
         final JavaArchive[] libraries = List.of(
                 // a2a-java-sdk-jakarta-compat-0.3-grpc.jar - contains WildFlyGrpcHandler_v0_3
                 getJarForClass(WildFlyGrpcHandler_v0_3.class),
-                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc.jar - needed for agent card endpoint
+                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc.jar - contains delegate
+                getJarForClass(A2AServerResourceDelegate_v0_3.class),
+                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc-web.jar - needed for agent card endpoint
                 getJarForClass(A2AServerResource_v0_3.class),
                 // v0.3 transport-jsonrpc (needed by A2AServerResource_v0_3)
                 getJarForClass(JSONRPCHandler_v0_3.class),

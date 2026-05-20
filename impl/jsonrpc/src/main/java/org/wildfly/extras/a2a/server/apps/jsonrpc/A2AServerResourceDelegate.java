@@ -6,9 +6,6 @@ import static org.a2aproject.sdk.transport.jsonrpc.context.JSONRPCContextKeys.TE
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -16,20 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
 
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -60,12 +48,10 @@ import org.a2aproject.sdk.jsonrpc.common.wrappers.SendMessageRequest;
 import org.a2aproject.sdk.jsonrpc.common.wrappers.SendStreamingMessageRequest;
 import org.a2aproject.sdk.jsonrpc.common.wrappers.StreamingJSONRPCRequest;
 import org.a2aproject.sdk.jsonrpc.common.wrappers.SubscribeToTaskRequest;
-import org.a2aproject.sdk.server.ExtendedAgentCard;
 import org.a2aproject.sdk.server.ServerCallContext;
 import org.a2aproject.sdk.server.auth.UnauthenticatedUser;
 import org.a2aproject.sdk.server.auth.User;
 import org.a2aproject.sdk.server.extensions.A2AExtensions;
-import org.a2aproject.sdk.server.util.async.Internal;
 import org.a2aproject.sdk.server.util.sse.SseFormatter;
 import org.a2aproject.sdk.spec.A2AError;
 import org.a2aproject.sdk.spec.AgentCard;
@@ -80,41 +66,26 @@ import org.a2aproject.sdk.transport.jsonrpc.handler.JSONRPCHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Path("/")
-public class A2AServerResource {
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(A2AServerResource.class);
+public class A2AServerResourceDelegate {
 
-    @Inject
-    JSONRPCHandler jsonRpcHandler;
+    private static final Logger LOGGER = LoggerFactory.getLogger(A2AServerResourceDelegate.class);
 
-    @Inject
-    @ExtendedAgentCard
-    Instance<AgentCard> extendedAgentCard;
+    private final JSONRPCHandler jsonRpcHandler;
 
-    // Hook so testing can wait until the async Subscription is subscribed.
     private static volatile Runnable streamingIsSubscribedRunnable;
 
-    @Inject
-    @Internal
-    Executor executor;
+    public A2AServerResourceDelegate(JSONRPCHandler jsonRpcHandler) {
+        this.jsonRpcHandler = jsonRpcHandler;
+    }
 
-
-
-    /**
-     * Handles incoming POST requests to the main A2A endpoint. Dispatches the
-     * request to the appropriate JSON-RPC handler method and returns the response.
-     *
-     * @param body the JSON-RPC request string
-     * @return the JSON-RPC response which may be an error response
-     */
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response handleNonStreamingRequests(
             String body,
-            @Context HttpServletRequest httpRequest,
-            @Context SecurityContext securityContext) {
+            HttpServletRequest httpRequest,
+            SecurityContext securityContext) {
 
         ServerCallContext context = createCallContext(httpRequest, securityContext);
         LOGGER.debug("Handling non-streaming request");
@@ -133,7 +104,6 @@ public class A2AServerResource {
             response = new A2AErrorResponse(e.getId(), new InvalidRequestError(null, e.getMessage(), null));
         } catch (JsonMappingException e) {
             LOGGER.warn("JSON mapping error: {}", e.getMessage(), e);
-            // General JsonMappingException - treat as InvalidRequest
             response = new A2AErrorResponse(new InvalidRequestError(null, e.getMessage(), null));
         } catch (JsonSyntaxException e) {
             LOGGER.warn("JSON syntax error: {}", e.getMessage());
@@ -146,37 +116,24 @@ public class A2AServerResource {
             response = new A2AErrorResponse(new InternalError(t.getMessage()));
         }
 
-        // Serialize response using protobuf conversion
         String serialized = serializeResponse(response);
-
         String contentType = org.a2aproject.sdk.common.MediaType.APPLICATION_JSON;
 
-        // Return Response with explicit content-type header
         return Response.status(Response.Status.OK)
                 .header(HttpHeaders.CONTENT_TYPE, contentType)
                 .entity(serialized)
                 .build();
     }
 
-    /**
-     * Handles incoming POST requests to the main A2A endpoint that involve Server-Sent Events (SSE).
-     * Uses custom SSE response handling to avoid JAX-RS SSE compatibility issues with async publishers.
-     */
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.SERVER_SENT_EVENTS)
     public void handleStreamingRequests(
             String body,
-            @Context HttpServletResponse response,
-            @Context HttpServletRequest httpRequest,
-            @Context SecurityContext securityContext) throws IOException {
+            HttpServletResponse response,
+            HttpServletRequest httpRequest,
+            SecurityContext securityContext) throws IOException {
 
         ServerCallContext context = createCallContext(httpRequest, securityContext);
         LOGGER.debug("Handling streaming request with custom SSE response");
 
-        // Parse and validate before committing to SSE response format.
-        // Validation errors (e.g. terminal task) must be returned as plain
-        // JSON-RPC error responses, not SSE events.
         A2ARequest<?> request = null;
         try {
             request = JSONRPCUtils.parseRequestBody(body, null);
@@ -215,7 +172,6 @@ public class A2AServerResource {
             return;
         }
 
-        // Validation passed — now commit to SSE response format
         response.setContentType(MediaType.SERVER_SENT_EVENTS);
         response.setCharacterEncoding("UTF-8");
         response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache");
@@ -242,30 +198,11 @@ public class A2AServerResource {
         LOGGER.debug("Completed streaming request processing");
     }
 
-    /**
-     * Handles incoming GET requests to the agent card endpoint.
-     * Returns the agent card in JSON format with appropriate caching headers.
-     *
-     * <p>Per A2A specification section 8.6, Agent Card HTTP endpoints SHOULD include:
-     * <ul>
-     *   <li>Cache-Control header with max-age directive (CARD-CACHE-001)</li>
-     *   <li>ETag header for conditional request support (CARD-CACHE-002)</li>
-     *   <li>Last-Modified header in RFC 1123 format (CARD-CACHE-003)</li>
-     * </ul>
-     *
-     * @return the agent card with caching headers
-     */
-    @GET
-    @Path("/.well-known/agent-card.json")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getAgentCard() {
         AgentCard agentCard = jsonRpcHandler.getAgentCard();
 
-        // Generate ETag based on agent card content hash
         String etag = "\"" + Integer.toHexString(agentCard.hashCode()) + "\"";
 
-        // Set Last-Modified to current time in RFC 1123 format
-        // In production, this should reflect actual last modification time
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("GMT"));
         String lastModified = now.format(DateTimeFormatter.RFC_1123_DATE_TIME);
 
@@ -301,12 +238,6 @@ public class A2AServerResource {
         }
     }
 
-    /**
-     * Validates a streaming request before entering SSE mode.
-     * Throws A2AError if the task is in a terminal state or not found.
-     * This must be called before setting SSE headers so that errors
-     * are returned as plain JSON-RPC error responses, not SSE events.
-     */
     private void validateStreamingRequest(StreamingJSONRPCRequest<?> request) throws A2AError {
         if (request instanceof SendStreamingMessageRequest req) {
             jsonRpcHandler.validateRequestedTask(req.getParams().message().taskId());
@@ -315,10 +246,6 @@ public class A2AServerResource {
         }
     }
 
-    /**
-     * Creates a streaming publisher for the given request.
-     * This method runs synchronously to avoid connection closure issues.
-     */
     private Flow.Publisher<? extends A2AResponse<?>> createStreamingPublisher(StreamingJSONRPCRequest<?> request,
                                                                                  ServerCallContext context) {
         if (request instanceof SendStreamingMessageRequest req) {
@@ -326,15 +253,10 @@ public class A2AServerResource {
         } else if (request instanceof SubscribeToTaskRequest req) {
             return jsonRpcHandler.onSubscribeToTask(req, context);
         } else {
-            return null; // Unsupported request type
+            return null;
         }
     }
 
-    /**
-     * Handles the streaming response using custom SSE formatting.
-     * This approach avoids JAX-RS SSE compatibility issues with async publishers.
-     * Implements proper client disconnect detection and EventConsumer cancellation.
-     */
     private void handleCustomSSEResponse(Flow.Publisher<? extends A2AResponse<?>> publisher,
                                        HttpServletResponse response,
                                        ServerCallContext context) throws IOException {
@@ -350,10 +272,8 @@ public class A2AServerResource {
             public void onSubscribe(Flow.Subscription subscription) {
                 LOGGER.debug("Custom SSE subscriber onSubscribe called");
                 this.subscription = subscription;
-                // Use backpressure: request one item at a time
                 subscription.request(1);
 
-                // Notify tests that we are subscribed
                 Runnable runnable = streamingIsSubscribedRunnable;
                 if (runnable != null) {
                     runnable.run();
@@ -364,15 +284,12 @@ public class A2AServerResource {
             public void onNext(A2AResponse<?> item) {
                 LOGGER.debug("Custom SSE subscriber onNext called with item: {}", item);
                 try {
-                    // Format as proper SSE event using centralized SseFormatter
                     long id = eventId.getAndIncrement();
                     String sseEvent = SseFormatter.formatResponseAsSSE(item, id);
 
                     writer.write(sseEvent);
                     writer.flush();
 
-                    // Check if write failed (client disconnected)
-                    // PrintWriter doesn't throw IOException, so we must check for errors explicitly
                     if (writer.checkError()) {
                         LOGGER.info("SSE write failed (likely client disconnect)");
                         handleClientDisconnect();
@@ -380,8 +297,6 @@ public class A2AServerResource {
                     }
 
                     LOGGER.debug("Custom SSE event sent successfully with id: {}", id);
-
-                    // Request next item (backpressure)
                     subscription.request(1);
                 } catch (Exception e) {
                     LOGGER.error("Error writing SSE event: {}", e.getMessage(), e);
@@ -409,11 +324,9 @@ public class A2AServerResource {
 
             private void handleClientDisconnect() {
                 LOGGER.debug("SSE connection closed, calling EventConsumer.cancel() to stop polling loop");
-                // Cancel subscription to stop receiving events
                 if (subscription != null) {
                     subscription.cancel();
                 }
-                // Call EventConsumer cancel callback to clean up ChildQueue
                 context.invokeEventConsumerCancelCallback();
                 try {
                     writer.close();
@@ -424,7 +337,6 @@ public class A2AServerResource {
         });
 
         try {
-            // Wait for streaming to complete before method returns
             streamingComplete.get();
         } catch (Exception e) {
             LOGGER.error("Error waiting for streaming completion: {}", e.getMessage(), e);
@@ -432,15 +344,10 @@ public class A2AServerResource {
         }
     }
 
-
     private A2AResponse<?> generateErrorResponse(A2ARequest<?> request, A2AError error) {
         return new A2AErrorResponse(request.getId(), error);
     }
 
-    /**
-     * Sends a plain JSON-RPC error response (Content-Type: application/json).
-     * Used for pre-streaming validation errors that should not be sent as SSE.
-     */
     private void sendJsonRpcError(HttpServletResponse response, Object id, A2AError error) {
         try {
             A2AErrorResponse errorResponse = new A2AErrorResponse(id, error);
@@ -454,9 +361,6 @@ public class A2AServerResource {
         }
     }
 
-    /**
-     * Sends an error response as a Server-Sent Event.
-     */
     private void sendErrorSSE(HttpServletResponse response, Object id, A2AError error) {
         try {
             PrintWriter writer = response.getWriter();
@@ -464,7 +368,7 @@ public class A2AServerResource {
             String jsonData = serializeResponse(errorResponse);
             writer.write("data: " + jsonData + "\n");
             writer.write("id: 0\n");
-            writer.write("\n"); // Empty line to complete the event
+            writer.write("\n");
             writer.flush();
             writer.close();
         } catch (Exception e) {
@@ -473,10 +377,10 @@ public class A2AServerResource {
     }
 
     public static void setStreamingIsSubscribedRunnable(Runnable streamingIsSubscribedRunnable) {
-        A2AServerResource.streamingIsSubscribedRunnable = streamingIsSubscribedRunnable;
+        A2AServerResourceDelegate.streamingIsSubscribedRunnable = streamingIsSubscribedRunnable;
     }
 
-    private ServerCallContext createCallContext(HttpServletRequest request, SecurityContext securityContext) {
+    protected ServerCallContext createCallContext(HttpServletRequest request, SecurityContext securityContext) {
         User user;
 
         if (securityContext.getUserPrincipal() == null) {
@@ -531,30 +435,17 @@ public class A2AServerResource {
         return tenantPath;
     }
 
-
-    // Exception mappers removed - all error handling now done in main handler method
-    // to avoid JAX-RS double-encoding the JSON error responses
-
-    /**
-     * Serializes A2A responses to JSON using protobuf conversion.
-     * This ensures enum values are serialized correctly using protobuf JSON format.
-     */
-    private static String serializeResponse(A2AResponse<?> response) {
-        // For error responses, use JSONRPCUtils error serialization
+    static String serializeResponse(A2AResponse<?> response) {
         if (response instanceof A2AErrorResponse error) {
             return JSONRPCUtils.toJsonRPCErrorResponse(error.getId(), error.getError());
         }
         if (response.getError() != null) {
             return JSONRPCUtils.toJsonRPCErrorResponse(response.getId(), response.getError());
         }
-        // Convert domain response to protobuf message and serialize
         com.google.protobuf.MessageOrBuilder protoMessage = convertToProto(response);
         return JSONRPCUtils.toJsonRPCResultResponse(response.getId(), protoMessage);
     }
 
-    /**
-     * Converts A2A response objects to their protobuf equivalents.
-     */
     private static com.google.protobuf.MessageOrBuilder convertToProto(A2AResponse<?> response) {
         if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.GetTaskResponse r) {
             return ProtoUtils.ToProto.task(r.getResult());
@@ -571,7 +462,6 @@ public class A2AServerResource {
         } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.ListTaskPushNotificationConfigsResponse r) {
             return ProtoUtils.ToProto.listTaskPushNotificationConfigsResponse(r.getResult());
         } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.DeleteTaskPushNotificationConfigResponse) {
-            // DeleteTaskPushNotificationConfig has no result body, just return empty message
             return com.google.protobuf.Empty.getDefaultInstance();
         } else if (response instanceof org.a2aproject.sdk.jsonrpc.common.wrappers.GetExtendedAgentCardResponse r) {
             return ProtoUtils.ToProto.getExtendedCardResponse(r.getResult());

@@ -35,6 +35,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.wildfly.extras.a2a.server.apps.jsonrpc.compat03.A2AServerResource_v0_3;
+import org.wildfly.extras.a2a.server.apps.jsonrpc.compat03.A2AServerResourceDelegate_v0_3;
 
 
 @ArquillianTest
@@ -62,11 +63,7 @@ public class JakartaA2AServer_v0_3_JSONRPCTest extends AbstractA2AServerServerTe
 
     @Deployment
     public static WebArchive createTestArchive() throws Exception {
-        // Include v0.3 test-jar but remove AgentExecutorProducer_v0_3 to avoid
-        // CDI ambiguity with the v1.0 AgentExecutorProducer from addPackage below
         JavaArchive v03TestJar = getJarForClass(AbstractA2AServerServerTest_v0_3.class);
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3.class");
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3$1.class");
 
         final JavaArchive[] libraries = List.of(
                 // a2a-java-sdk-common.jar
@@ -93,7 +90,9 @@ public class JakartaA2AServer_v0_3_JSONRPCTest extends AbstractA2AServerServerTe
                 getJarForClass(AnnotationsProto.class),
                 // guava.jar (required by a2a-java dependencies)
                 getJarForClass(ImmutableSet.class),
-                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc.jar - contains A2AServerResource_v0_3
+                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc.jar - contains delegate
+                getJarForClass(A2AServerResourceDelegate_v0_3.class),
+                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc-web.jar - contains A2AServerResource_v0_3
                 getJarForClass(A2AServerResource_v0_3.class),
                 // v0.3 transport-jsonrpc
                 getJarForClass(JSONRPCHandler_v0_3.class),

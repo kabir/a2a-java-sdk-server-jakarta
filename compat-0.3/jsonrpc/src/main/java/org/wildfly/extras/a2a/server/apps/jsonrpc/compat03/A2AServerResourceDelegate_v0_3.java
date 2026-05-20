@@ -15,15 +15,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
 
-import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -73,31 +66,22 @@ import org.a2aproject.sdk.server.extensions.A2AExtensions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Path("/")
-public class A2AServerResource_v0_3 {
+public class A2AServerResourceDelegate_v0_3 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(A2AServerResource_v0_3.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(A2AServerResourceDelegate_v0_3.class);
 
-    @Inject
-    JSONRPCHandler_v0_3 jsonRpcHandler;
+    private final JSONRPCHandler_v0_3 jsonRpcHandler;
 
-    // Hook so testing can wait until the async Subscription is subscribed.
     private static volatile Runnable streamingIsSubscribedRunnable;
 
-    /**
-     * Handles incoming POST requests to the main A2A endpoint. Dispatches the
-     * request to the appropriate JSON-RPC handler method and returns the response.
-     *
-     * @param body the JSON-RPC request string
-     * @return the JSON-RPC response which may be an error response
-     */
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    public A2AServerResourceDelegate_v0_3(JSONRPCHandler_v0_3 jsonRpcHandler) {
+        this.jsonRpcHandler = jsonRpcHandler;
+    }
+
     public Response handleNonStreamingRequests(
             String body,
-            @Context HttpServletRequest httpRequest,
-            @Context SecurityContext securityContext) {
+            HttpServletRequest httpRequest,
+            SecurityContext securityContext) {
 
         ServerCallContext context = createCallContext(httpRequest, securityContext);
         LOGGER.debug("Handling non-streaming request");
@@ -112,7 +96,6 @@ public class A2AServerResource_v0_3 {
                 throw new JSONParseError_v0_3(e.getMessage());
             }
 
-            // Extract id field early so error responses can include it
             com.google.gson.JsonElement idElement = node.get("id");
             if (idElement != null && !idElement.isJsonNull() && !idElement.isJsonPrimitive()) {
                 throw new InvalidRequestError_v0_3("Invalid JSON-RPC request: 'id' must be a string, number, or null");
@@ -122,14 +105,12 @@ public class A2AServerResource_v0_3 {
                 requestId = idPrimitive.isNumber() ? idPrimitive.getAsLong() : idPrimitive.getAsString();
             }
 
-            // Validate jsonrpc field
             com.google.gson.JsonElement jsonrpcElement = node.get("jsonrpc");
             if (jsonrpcElement == null || !jsonrpcElement.isJsonPrimitive()
                     || !JSONRPCMessage_v0_3.JSONRPC_VERSION.equals(jsonrpcElement.getAsString())) {
                 throw new InvalidRequestError_v0_3("Invalid JSON-RPC request: missing or invalid 'jsonrpc' field");
             }
 
-            // Validate method field
             com.google.gson.JsonElement methodElement = node.get("method");
             if (methodElement == null || !methodElement.isJsonPrimitive()) {
                 throw new InvalidRequestError_v0_3("Invalid JSON-RPC request: missing or invalid 'method' field");
@@ -164,24 +145,15 @@ public class A2AServerResource_v0_3 {
                 .build();
     }
 
-    /**
-     * Handles incoming POST requests to the main A2A endpoint that involve Server-Sent Events (SSE).
-     * Uses custom SSE response handling to avoid JAX-RS SSE compatibility issues with async publishers.
-     */
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.SERVER_SENT_EVENTS)
     public void handleStreamingRequests(
             String body,
-            @Context HttpServletResponse httpResponse,
-            @Context HttpServletRequest httpRequest,
-            @Context SecurityContext securityContext) throws IOException {
+            HttpServletResponse httpResponse,
+            HttpServletRequest httpRequest,
+            SecurityContext securityContext) throws IOException {
 
         ServerCallContext context = createCallContext(httpRequest, securityContext);
         LOGGER.debug("Handling streaming request with custom SSE response");
 
-        // Parse and validate before committing to SSE response format.
-        // Validation errors must be returned as plain JSON-RPC error responses, not SSE events.
         Object requestId = null;
         StreamingJSONRPCRequest_v0_3<?> request = null;
         try {
@@ -192,7 +164,6 @@ public class A2AServerResource_v0_3 {
                 throw new JSONParseError_v0_3(e.getMessage());
             }
 
-            // Extract id field early so error responses can include it
             com.google.gson.JsonElement idElement = node.get("id");
             if (idElement != null && !idElement.isJsonNull() && !idElement.isJsonPrimitive()) {
                 throw new InvalidRequestError_v0_3("Invalid JSON-RPC request: 'id' must be a string, number, or null");
@@ -202,14 +173,12 @@ public class A2AServerResource_v0_3 {
                 requestId = idPrimitive.isNumber() ? idPrimitive.getAsLong() : idPrimitive.getAsString();
             }
 
-            // Validate jsonrpc field
             com.google.gson.JsonElement jsonrpcElement = node.get("jsonrpc");
             if (jsonrpcElement == null || !jsonrpcElement.isJsonPrimitive()
                     || !JSONRPCMessage_v0_3.JSONRPC_VERSION.equals(jsonrpcElement.getAsString())) {
                 throw new InvalidRequestError_v0_3("Invalid JSON-RPC request: missing or invalid 'jsonrpc' field");
             }
 
-            // Validate method field
             com.google.gson.JsonElement methodElement = node.get("method");
             if (methodElement == null || !methodElement.isJsonPrimitive()) {
                 throw new InvalidRequestError_v0_3("Invalid JSON-RPC request: missing or invalid 'method' field");
@@ -233,7 +202,6 @@ public class A2AServerResource_v0_3 {
             return;
         }
 
-        // Validation passed - now commit to SSE response format
         httpResponse.setContentType(MediaType.SERVER_SENT_EVENTS);
         httpResponse.setCharacterEncoding("UTF-8");
         httpResponse.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache");
@@ -260,15 +228,6 @@ public class A2AServerResource_v0_3 {
         LOGGER.debug("Completed streaming request processing");
     }
 
-    /**
-     * Handles incoming GET requests to the agent card endpoint.
-     * Returns the agent card in JSON format.
-     *
-     * @return the agent card
-     */
-    @GET
-    @Path("/.well-known/agent-card.json")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getAgentCard() {
         try {
             String agentCard = JsonUtil_v0_3.toJson(jsonRpcHandler.getAgentCard());
@@ -366,15 +325,10 @@ public class A2AServerResource_v0_3 {
         } else if (request instanceof TaskResubscriptionRequest_v0_3 req) {
             return jsonRpcHandler.onResubscribeToTask(req, context);
         } else {
-            return null; // Unsupported request type
+            return null;
         }
     }
 
-    /**
-     * Handles the streaming response using custom SSE formatting.
-     * This approach avoids JAX-RS SSE compatibility issues with async publishers.
-     * Implements proper client disconnect detection and EventConsumer cancellation.
-     */
     private void handleCustomSSEResponse(Flow.Publisher<? extends JSONRPCResponse_v0_3<?>> publisher,
                                          HttpServletResponse response,
                                          ServerCallContext context) throws IOException {
@@ -390,10 +344,8 @@ public class A2AServerResource_v0_3 {
             public void onSubscribe(Flow.Subscription subscription) {
                 LOGGER.debug("Custom SSE subscriber onSubscribe called");
                 this.subscription = subscription;
-                // Use backpressure: request one item at a time
                 subscription.request(1);
 
-                // Notify tests that we are subscribed
                 Runnable runnable = streamingIsSubscribedRunnable;
                 if (runnable != null) {
                     runnable.run();
@@ -410,8 +362,6 @@ public class A2AServerResource_v0_3 {
                     writer.write(sseEvent);
                     writer.flush();
 
-                    // Check if write failed (client disconnected)
-                    // PrintWriter doesn't throw IOException, so we must check for errors explicitly
                     if (writer.checkError()) {
                         LOGGER.info("SSE write failed (likely client disconnect)");
                         handleClientDisconnect();
@@ -419,8 +369,6 @@ public class A2AServerResource_v0_3 {
                     }
 
                     LOGGER.debug("Custom SSE event sent successfully with id: {}", id);
-
-                    // Request next item (backpressure)
                     subscription.request(1);
                 } catch (Exception e) {
                     LOGGER.error("Error writing SSE event: {}", e.getMessage(), e);
@@ -448,11 +396,9 @@ public class A2AServerResource_v0_3 {
 
             private void handleClientDisconnect() {
                 LOGGER.debug("SSE connection closed, calling EventConsumer.cancel() to stop polling loop");
-                // Cancel subscription to stop receiving events
                 if (subscription != null) {
                     subscription.cancel();
                 }
-                // Call EventConsumer cancel callback to clean up ChildQueue
                 context.invokeEventConsumerCancelCallback();
                 try {
                     writer.close();
@@ -463,7 +409,6 @@ public class A2AServerResource_v0_3 {
         });
 
         try {
-            // Wait for streaming to complete before method returns
             streamingComplete.get();
         } catch (Exception e) {
             LOGGER.error("Error waiting for streaming completion: {}", e.getMessage(), e);
@@ -475,10 +420,6 @@ public class A2AServerResource_v0_3 {
         return new JSONRPCErrorResponse_v0_3(request.getId(), error);
     }
 
-    /**
-     * Sends a plain JSON-RPC error response (Content-Type: application/json).
-     * Used for pre-streaming validation errors that should not be sent as SSE.
-     */
     private void sendJsonRpcError(HttpServletResponse response, Object id, JSONRPCError_v0_3 error) {
         try {
             JSONRPCErrorResponse_v0_3 errorResponse = new JSONRPCErrorResponse_v0_3(id, error);
@@ -492,9 +433,6 @@ public class A2AServerResource_v0_3 {
         }
     }
 
-    /**
-     * Sends an error response as a Server-Sent Event.
-     */
     private void sendErrorSSE(HttpServletResponse response, Object id, JSONRPCError_v0_3 error) {
         try {
             PrintWriter writer = response.getWriter();
@@ -502,7 +440,7 @@ public class A2AServerResource_v0_3 {
             String jsonData = Utils_v0_3.toJsonString(errorResponse);
             writer.write("data: " + jsonData + "\n");
             writer.write("id: 0\n");
-            writer.write("\n"); // Empty line to complete the event
+            writer.write("\n");
             writer.flush();
             writer.close();
         } catch (Exception e) {
@@ -511,10 +449,10 @@ public class A2AServerResource_v0_3 {
     }
 
     public static void setStreamingIsSubscribedRunnable(Runnable streamingIsSubscribedRunnable) {
-        A2AServerResource_v0_3.streamingIsSubscribedRunnable = streamingIsSubscribedRunnable;
+        A2AServerResourceDelegate_v0_3.streamingIsSubscribedRunnable = streamingIsSubscribedRunnable;
     }
 
-    private ServerCallContext createCallContext(HttpServletRequest request, SecurityContext securityContext) {
+    protected ServerCallContext createCallContext(HttpServletRequest request, SecurityContext securityContext) {
         User user;
 
         if (securityContext.getUserPrincipal() == null) {
@@ -542,7 +480,6 @@ public class A2AServerResource_v0_3 {
 
         state.put(HEADERS_KEY, headers);
 
-        // Extract requested extensions from X-A2A-Extensions header
         Enumeration<String> en = request.getHeaders(A2AHeaders_v0_3.X_A2A_EXTENSIONS);
         List<String> extensionHeaderValues = new ArrayList<>();
         while (en.hasMoreElements()) {

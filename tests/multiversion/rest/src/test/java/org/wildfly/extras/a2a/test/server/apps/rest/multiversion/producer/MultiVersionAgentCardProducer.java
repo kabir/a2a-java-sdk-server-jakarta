@@ -1,4 +1,4 @@
-package org.wildfly.extras.a2a.test.server.apps.rest.multiversion;
+package org.wildfly.extras.a2a.test.server.apps.rest.multiversion.producer;
 
 import java.io.IOException;
 import java.io.InputStream;

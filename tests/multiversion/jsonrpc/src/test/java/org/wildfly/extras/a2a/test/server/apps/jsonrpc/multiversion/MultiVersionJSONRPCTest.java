@@ -35,6 +35,8 @@ import org.jboss.arquillian.junit5.container.annotation.ArquillianTest;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.wildfly.extras.a2a.server.apps.jsonrpc.A2AServerResourceDelegate;
+import org.wildfly.extras.a2a.server.apps.jsonrpc.compat03.A2AServerResourceDelegate_v0_3;
 import org.wildfly.extras.a2a.server.apps.jsonrpc.multiversion.MultiVersionA2AServerResource;
 
 
@@ -63,11 +65,7 @@ public class MultiVersionJSONRPCTest extends AbstractA2AServerTest {
 
     @Deployment
     public static WebArchive createTestArchive() throws Exception {
-        // Include v0.3 test-jar but remove AgentExecutorProducer_v0_3 to avoid
-        // CDI ambiguity with the v1.0 AgentExecutorProducer from addPackage below
         JavaArchive v03TestJar = getJarForClass(AbstractA2AServerServerTest_v0_3.class);
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3.class");
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3$1.class");
 
         final JavaArchive[] libraries = List.of(
                 // a2a-java-sdk-common.jar
@@ -96,6 +94,10 @@ public class MultiVersionJSONRPCTest extends AbstractA2AServerTest {
                 getJarForClass(ImmutableSet.class),
                 // a2a-java-sdk-jakarta-compat-0.3-multiversion-jsonrpc.jar - contains MultiVersionA2AServerResource
                 getJarForClass(MultiVersionA2AServerResource.class),
+                // a2a-java-sdk-jakarta-jsonrpc.jar - contains v1.0 delegate
+                getJarForClass(A2AServerResourceDelegate.class),
+                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc.jar - contains v0.3 delegate
+                getJarForClass(A2AServerResourceDelegate_v0_3.class),
                 // v0.3 transport-jsonrpc
                 getJarForClass(JSONRPCHandler_v0_3.class),
                 // v0.3 server-conversion

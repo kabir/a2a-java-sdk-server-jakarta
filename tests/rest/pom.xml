@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>a2a-java-sdk-jakarta-rest</artifactId>
+            <artifactId>a2a-java-sdk-jakarta-rest-web</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

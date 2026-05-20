@@ -6,6 +6,9 @@ import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -15,18 +18,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 
-import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
@@ -55,29 +48,28 @@ import org.wildfly.extras.a2a.server.apps.common.SSESubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Path("/v1")
-public class A2ARestServerResource_v0_3 {
+public class A2ARestServerResourceDelegate_v0_3 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(A2ARestServerResource_v0_3.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(A2ARestServerResourceDelegate_v0_3.class);
 
-    @Inject
-    RestHandler_v0_3 jsonRestHandler;
+    private final RestHandler_v0_3 restHandler;
 
-    // Hook so testing can wait until the async Subscription is subscribed.
     private static volatile Runnable streamingIsSubscribedRunnable;
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("message:send")
-    public Response sendMessage(String body, @Context HttpServletRequest httpRequest, @Context SecurityContext securityContext) {
+    public A2ARestServerResourceDelegate_v0_3(RestHandler_v0_3 restHandler) {
+        this.restHandler = restHandler;
+    }
+
+    @SuppressWarnings("ReturnValueIgnored")
+    public Response sendMessage(String body, HttpServletRequest httpRequest, SecurityContext securityContext) {
         ServerCallContext context = createCallContext(httpRequest, securityContext, SendMessageRequest_v0_3.METHOD);
         RestHandler_v0_3.HTTPRestResponse response = null;
         try {
-            response = jsonRestHandler.sendMessage(body, context);
+            response = restHandler.sendMessage(body, context);
         } catch (JSONRPCError_v0_3 e) {
-            response = jsonRestHandler.createErrorResponse(e);
+            response = restHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
+            response = restHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -86,16 +78,12 @@ public class A2ARestServerResource_v0_3 {
         }
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.SERVER_SENT_EVENTS)
-    @Path("message:stream")
-    public void sendMessageStreaming(String body, @Context HttpServletRequest httpRequest, @Context HttpServletResponse httpResponse, @Context SecurityContext securityContext) throws IOException {
+    public void sendMessageStreaming(String body, HttpServletRequest httpRequest, HttpServletResponse httpResponse, SecurityContext securityContext) throws IOException {
         ServerCallContext context = createCallContext(httpRequest, securityContext, SendStreamingMessageRequest_v0_3.METHOD);
         RestHandler_v0_3.HTTPRestStreamingResponse streamingResponse = null;
         RestHandler_v0_3.HTTPRestResponse error = null;
         try {
-            RestHandler_v0_3.HTTPRestResponse response = jsonRestHandler.sendStreamingMessage(body, context);
+            RestHandler_v0_3.HTTPRestResponse response = restHandler.sendStreamingMessage(body, context);
             if (response instanceof RestHandler_v0_3.HTTPRestStreamingResponse hTTPRestStreamingResponse) {
                 streamingResponse = hTTPRestStreamingResponse;
             } else {
@@ -110,24 +98,20 @@ public class A2ARestServerResource_v0_3 {
         }
     }
 
-    @GET
-    @Path("tasks/{taskId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getTask(@PathParam("taskId") String taskId,
-            @QueryParam("history_length") String historyLengthSnakeStr,
-            @QueryParam("historyLength") String historyLengthCamelStr,
-            @Context HttpServletRequest httpRequest, @Context SecurityContext securityContext) {
+    @SuppressWarnings("ReturnValueIgnored")
+    public Response getTask(String taskId, String historyLengthSnakeStr, String historyLengthCamelStr,
+            HttpServletRequest httpRequest, SecurityContext securityContext) {
         ServerCallContext context = createCallContext(httpRequest, securityContext, GetTaskRequest_v0_3.METHOD);
         RestHandler_v0_3.HTTPRestResponse response = null;
         try {
             if (taskId == null || taskId.isEmpty()) {
-                response = jsonRestHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
+                response = restHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
             } else {
                 boolean hasHistoryLength = historyLengthSnakeStr != null && !historyLengthSnakeStr.isEmpty();
                 boolean hasHistoryLengthCamel = historyLengthCamelStr != null && !historyLengthCamelStr.isEmpty();
 
                 if (hasHistoryLength && hasHistoryLengthCamel) {
-                    response = jsonRestHandler.createErrorResponse(
+                    response = restHandler.createErrorResponse(
                         new InvalidParamsError_v0_3("Only one of 'history_length' or 'historyLength' may be specified"));
                 } else {
                     int historyLength = 0;
@@ -136,15 +120,15 @@ public class A2ARestServerResource_v0_3 {
                     } else if (hasHistoryLengthCamel) {
                         historyLength = Integer.parseInt(historyLengthCamelStr);
                     }
-                    response = jsonRestHandler.getTask(taskId, historyLength, context);
+                    response = restHandler.getTask(taskId, historyLength, context);
                 }
             }
         } catch (NumberFormatException e) {
-            response = jsonRestHandler.createErrorResponse(new InvalidParamsError_v0_3("bad history_length or historyLength"));
+            response = restHandler.createErrorResponse(new InvalidParamsError_v0_3("bad history_length or historyLength"));
         } catch (JSONRPCError_v0_3 e) {
-            response = jsonRestHandler.createErrorResponse(e);
+            response = restHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
+            response = restHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -153,22 +137,20 @@ public class A2ARestServerResource_v0_3 {
         }
     }
 
-    @POST
-    @Path("tasks/{taskId}:cancel")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response cancelTask(@PathParam("taskId") String taskId, @Context HttpServletRequest httpRequest, @Context SecurityContext securityContext) {
+    @SuppressWarnings("ReturnValueIgnored")
+    public Response cancelTask(String taskId, HttpServletRequest httpRequest, SecurityContext securityContext) {
         ServerCallContext context = createCallContext(httpRequest, securityContext, CancelTaskRequest_v0_3.METHOD);
         RestHandler_v0_3.HTTPRestResponse response = null;
         try {
             if (taskId == null || taskId.isEmpty()) {
-                response = jsonRestHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
+                response = restHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
             } else {
-                response = jsonRestHandler.cancelTask(taskId, context);
+                response = restHandler.cancelTask(taskId, context);
             }
         } catch (JSONRPCError_v0_3 e) {
-            response = jsonRestHandler.createErrorResponse(e);
+            response = restHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
+            response = restHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -177,19 +159,15 @@ public class A2ARestServerResource_v0_3 {
         }
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.SERVER_SENT_EVENTS)
-    @Path("tasks/{taskId}:subscribe")
-    public void resubscribeTask(@PathParam("taskId") String taskId, @Context HttpServletRequest httpRequest, @Context HttpServletResponse httpResponse, @Context SecurityContext securityContext) throws IOException {
+    public void resubscribeTask(String taskId, HttpServletRequest httpRequest, HttpServletResponse httpResponse, SecurityContext securityContext) throws IOException {
         ServerCallContext context = createCallContext(httpRequest, securityContext, TaskResubscriptionRequest_v0_3.METHOD);
         RestHandler_v0_3.HTTPRestStreamingResponse streamingResponse = null;
         RestHandler_v0_3.HTTPRestResponse error = null;
         try {
             if (taskId == null || taskId.isEmpty()) {
-                error = jsonRestHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
+                error = restHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
             } else {
-                RestHandler_v0_3.HTTPRestResponse response = jsonRestHandler.resubscribeTask(taskId, context);
+                RestHandler_v0_3.HTTPRestResponse response = restHandler.resubscribeTask(taskId, context);
                 if (response instanceof RestHandler_v0_3.HTTPRestStreamingResponse hTTPRestStreamingResponse) {
                     streamingResponse = hTTPRestStreamingResponse;
                 } else {
@@ -205,34 +183,46 @@ public class A2ARestServerResource_v0_3 {
         }
     }
 
-    @GET
-    @Path("card")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getAuthenticatedExtendedCard(@Context HttpServletRequest httpRequest, @Context SecurityContext securityContext) {
-        ServerCallContext context = createCallContext(httpRequest, securityContext, GetAuthenticatedExtendedCardRequest_v0_3.METHOD);
-        RestHandler_v0_3.HTTPRestResponse response = jsonRestHandler.getAuthenticatedExtendedCard();
+    public Response getAgentCard() {
+        RestHandler_v0_3.HTTPRestResponse response = restHandler.getAgentCard();
+
+        String etag = "\"" + Integer.toHexString(response.getBody().hashCode()) + "\"";
+
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("GMT"));
+        String lastModified = now.format(DateTimeFormatter.RFC_1123_DATE_TIME);
+
+        return Response.status(response.getStatusCode())
+                .header(CONTENT_TYPE, response.getContentType())
+                .header("Cache-Control", "max-age=3600")
+                .header("ETag", etag)
+                .header("Last-Modified", lastModified)
+                .entity(response.getBody())
+                .build();
+    }
+
+    public Response getAuthenticatedExtendedCard(HttpServletRequest httpRequest, SecurityContext securityContext) {
+        createCallContext(httpRequest, securityContext, GetAuthenticatedExtendedCardRequest_v0_3.METHOD);
+        RestHandler_v0_3.HTTPRestResponse response = restHandler.getAuthenticatedExtendedCard();
         return Response.status(response.getStatusCode())
                 .header(CONTENT_TYPE, response.getContentType())
                 .entity(response.getBody())
                 .build();
     }
 
-    @POST
-    @Path("tasks/{taskId}/pushNotificationConfigs")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response setTaskPushNotificationConfiguration(@PathParam("taskId") String taskId, String body, @Context HttpServletRequest httpRequest, @Context SecurityContext securityContext) {
+    @SuppressWarnings("ReturnValueIgnored")
+    public Response setTaskPushNotificationConfiguration(String taskId, String body, HttpServletRequest httpRequest, SecurityContext securityContext) {
         ServerCallContext context = createCallContext(httpRequest, securityContext, SetTaskPushNotificationConfigRequest_v0_3.METHOD);
         RestHandler_v0_3.HTTPRestResponse response = null;
         try {
             if (taskId == null || taskId.isEmpty()) {
-                response = jsonRestHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
+                response = restHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
             } else {
-                response = jsonRestHandler.setTaskPushNotificationConfiguration(taskId, body, context);
+                response = restHandler.setTaskPushNotificationConfiguration(taskId, body, context);
             }
         } catch (JSONRPCError_v0_3 e) {
-            response = jsonRestHandler.createErrorResponse(e);
+            response = restHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
+            response = restHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -241,22 +231,20 @@ public class A2ARestServerResource_v0_3 {
         }
     }
 
-    @GET
-    @Path("tasks/{taskId}/pushNotificationConfigs/{configId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getTaskPushNotificationConfiguration(@PathParam("taskId") String taskId, @PathParam("configId") String configId, @Context HttpServletRequest httpRequest, @Context SecurityContext securityContext) {
+    @SuppressWarnings("ReturnValueIgnored")
+    public Response getTaskPushNotificationConfiguration(String taskId, String configId, HttpServletRequest httpRequest, SecurityContext securityContext) {
         ServerCallContext context = createCallContext(httpRequest, securityContext, GetTaskPushNotificationConfigRequest_v0_3.METHOD);
         RestHandler_v0_3.HTTPRestResponse response = null;
         try {
             if (taskId == null || taskId.isEmpty()) {
-                response = jsonRestHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
+                response = restHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
             } else {
-                response = jsonRestHandler.getTaskPushNotificationConfiguration(taskId, configId, context);
+                response = restHandler.getTaskPushNotificationConfiguration(taskId, configId, context);
             }
         } catch (JSONRPCError_v0_3 e) {
-            response = jsonRestHandler.createErrorResponse(e);
+            response = restHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
+            response = restHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -265,22 +253,20 @@ public class A2ARestServerResource_v0_3 {
         }
     }
 
-    @GET
-    @Path("tasks/{taskId}/pushNotificationConfigs")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response listTaskPushNotificationConfigurations(@PathParam("taskId") String taskId, @Context HttpServletRequest httpRequest, @Context SecurityContext securityContext) {
+    @SuppressWarnings("ReturnValueIgnored")
+    public Response listTaskPushNotificationConfigurations(String taskId, HttpServletRequest httpRequest, SecurityContext securityContext) {
         ServerCallContext context = createCallContext(httpRequest, securityContext, ListTaskPushNotificationConfigRequest_v0_3.METHOD);
         RestHandler_v0_3.HTTPRestResponse response = null;
         try {
             if (taskId == null || taskId.isEmpty()) {
-                response = jsonRestHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
+                response = restHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
             } else {
-                response = jsonRestHandler.listTaskPushNotificationConfigurations(taskId, context);
+                response = restHandler.listTaskPushNotificationConfigurations(taskId, context);
             }
         } catch (JSONRPCError_v0_3 e) {
-            response = jsonRestHandler.createErrorResponse(e);
+            response = restHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
+            response = restHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -289,24 +275,22 @@ public class A2ARestServerResource_v0_3 {
         }
     }
 
-    @DELETE
-    @Path("tasks/{taskId}/pushNotificationConfigs/{configId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteTaskPushNotificationConfiguration(@PathParam("taskId") String taskId, @PathParam("configId") String configId, @Context HttpServletRequest httpRequest, @Context SecurityContext securityContext) {
+    @SuppressWarnings("ReturnValueIgnored")
+    public Response deleteTaskPushNotificationConfiguration(String taskId, String configId, HttpServletRequest httpRequest, SecurityContext securityContext) {
         ServerCallContext context = createCallContext(httpRequest, securityContext, DeleteTaskPushNotificationConfigRequest_v0_3.METHOD);
         RestHandler_v0_3.HTTPRestResponse response = null;
         try {
             if (taskId == null || taskId.isEmpty()) {
-                response = jsonRestHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
+                response = restHandler.createErrorResponse(new InvalidParamsError_v0_3("bad task id"));
             } else if (configId == null || configId.isEmpty()) {
-                response = jsonRestHandler.createErrorResponse(new InvalidParamsError_v0_3("bad config id"));
+                response = restHandler.createErrorResponse(new InvalidParamsError_v0_3("bad config id"));
             } else {
-                response = jsonRestHandler.deleteTaskPushNotificationConfiguration(taskId, configId, context);
+                response = restHandler.deleteTaskPushNotificationConfiguration(taskId, configId, context);
             }
         } catch (JSONRPCError_v0_3 e) {
-            response = jsonRestHandler.createErrorResponse(e);
+            response = restHandler.createErrorResponse(e);
         } catch (Throwable t) {
-            response = jsonRestHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
+            response = restHandler.createErrorResponse(new InternalError_v0_3(t.getMessage()));
         } finally {
             return Response.status(response.getStatusCode())
                     .header(CONTENT_TYPE, response.getContentType())
@@ -322,11 +306,6 @@ public class A2ARestServerResource_v0_3 {
         httpResponse.getWriter().flush();
     }
 
-    /**
-     * Handles the streaming response using custom SSE formatting.
-     * This approach avoids JAX-RS SSE compatibility issues with async publishers.
-     * Implements proper client disconnect detection and EventConsumer cancellation.
-     */
     private void handleCustomSSEResponse(Flow.Publisher<String> publisher,
             HttpServletResponse response,
             ServerCallContext context) throws IOException {
@@ -347,11 +326,11 @@ public class A2ARestServerResource_v0_3 {
     }
 
     public static void setStreamingIsSubscribedRunnable(Runnable streamingIsSubscribedRunnable) {
-        A2ARestServerResource_v0_3.streamingIsSubscribedRunnable = streamingIsSubscribedRunnable;
+        A2ARestServerResourceDelegate_v0_3.streamingIsSubscribedRunnable = streamingIsSubscribedRunnable;
         SSESubscriber.setStreamingIsSubscribedRunnable(streamingIsSubscribedRunnable);
     }
 
-    private ServerCallContext createCallContext(HttpServletRequest request, SecurityContext securityContext, String jsonRpcMethodName) {
+    protected ServerCallContext createCallContext(HttpServletRequest request, SecurityContext securityContext, String jsonRpcMethodName) {
         User user;
 
         if (securityContext.getUserPrincipal() == null) {
@@ -380,7 +359,6 @@ public class A2ARestServerResource_v0_3 {
         state.put(HEADERS_KEY, headers);
         state.put(METHOD_NAME_KEY, jsonRpcMethodName);
 
-        // Extract requested extensions from X-A2A-Extensions header (v0.3 header)
         Enumeration<String> en = request.getHeaders(A2AHeaders_v0_3.X_A2A_EXTENSIONS);
         List<String> extensionHeaderValues = new ArrayList<>();
         while (en.hasMoreElements()) {

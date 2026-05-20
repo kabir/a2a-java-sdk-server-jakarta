@@ -36,7 +36,10 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.wildfly.extras.a2a.server.apps.common.SSESubscriber;
+import org.wildfly.extras.a2a.server.apps.rest.A2ARestServerResourceDelegate;
+import org.wildfly.extras.a2a.server.apps.rest.compat03.A2ARestServerResourceDelegate_v0_3;
 import org.wildfly.extras.a2a.server.apps.rest.multiversion.MultiVersionA2ARestServerResource;
+import org.wildfly.extras.a2a.test.server.apps.rest.multiversion.producer.MultiVersionAgentCardProducer;
 
 
 @ArquillianTest
@@ -64,11 +67,7 @@ public class MultiVersionRestTest extends AbstractA2AServerTest {
 
     @Deployment
     public static WebArchive createTestArchive() throws Exception {
-        // Include v0.3 test-jar but remove AgentExecutorProducer_v0_3 to avoid
-        // CDI ambiguity with the v1.0 AgentExecutorProducer from addPackage below
         JavaArchive v03TestJar = getJarForClass(AbstractA2AServerServerTest_v0_3.class);
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3.class");
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3$1.class");
 
         final JavaArchive[] libraries = List.of(
                 // a2a-java-sdk-common.jar
@@ -99,6 +98,10 @@ public class MultiVersionRestTest extends AbstractA2AServerTest {
                 getJarForClass(SSESubscriber.class),
                 // a2a-java-sdk-jakarta-compat-0.3-multiversion-rest.jar - contains MultiVersionA2ARestServerResource
                 getJarForClass(MultiVersionA2ARestServerResource.class),
+                // a2a-java-sdk-jakarta-rest.jar - contains v1.0 delegate
+                getJarForClass(A2ARestServerResourceDelegate.class),
+                // a2a-java-sdk-jakarta-compat-0.3-rest.jar - contains v0.3 delegate
+                getJarForClass(A2ARestServerResourceDelegate_v0_3.class),
                 // v0.3 transport-rest
                 getJarForClass(RestHandler_v0_3.class),
                 // v0.3 server-conversion
@@ -126,7 +129,8 @@ public class MultiVersionRestTest extends AbstractA2AServerTest {
                 .addAsLibraries(libraries)
                 // Extra dependencies needed by the tests
                 .addPackage(AbstractA2AServerTest.class.getPackage())
-                .addPackage(A2ATestResource.class.getPackage());
+                .addPackage(A2ATestResource.class.getPackage())
+                .addClass(MultiVersionAgentCardProducer.class);
         // Remove upstream AgentCardProducer so our MultiVersionAgentCardProducer
         // (which adds /v1 to the transport URL) is used instead
         archive.delete("/WEB-INF/classes/org/a2aproject/sdk/server/apps/common/AgentCardProducer.class");

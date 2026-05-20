@@ -21,7 +21,7 @@
         <!-- v0.3 Jakarta REST module -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>a2a-java-sdk-jakarta-compat-0.3-rest</artifactId>
+            <artifactId>a2a-java-sdk-jakarta-compat-0.3-rest-web</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

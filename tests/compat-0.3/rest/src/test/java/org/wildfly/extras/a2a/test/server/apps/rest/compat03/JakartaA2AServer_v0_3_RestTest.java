@@ -36,6 +36,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.wildfly.extras.a2a.server.apps.common.SSESubscriber;
+import org.wildfly.extras.a2a.server.apps.rest.compat03.A2ARestServerResourceDelegate_v0_3;
 import org.wildfly.extras.a2a.server.apps.rest.compat03.A2ARestServerResource_v0_3;
 
 
@@ -64,11 +65,7 @@ public class JakartaA2AServer_v0_3_RestTest extends AbstractA2AServerServerTest_
 
     @Deployment
     public static WebArchive createTestArchive() throws Exception {
-        // Include v0.3 test-jar but remove AgentExecutorProducer_v0_3 to avoid
-        // CDI ambiguity with the v1.0 AgentExecutorProducer from addPackage below
         JavaArchive v03TestJar = getJarForClass(AbstractA2AServerServerTest_v0_3.class);
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3.class");
-        v03TestJar.delete("/org/a2aproject/sdk/compat03/conversion/AgentExecutorProducer_v0_3$1.class");
 
         final JavaArchive[] libraries = List.of(
                 // a2a-java-sdk-common.jar
@@ -97,7 +94,9 @@ public class JakartaA2AServer_v0_3_RestTest extends AbstractA2AServerServerTest_
                 getJarForClass(ImmutableSet.class),
                 // a2a-java-sdk-jakarta-common.jar (contains SSESubscriber)
                 getJarForClass(SSESubscriber.class),
-                // a2a-java-sdk-jakarta-compat-0.3-rest.jar - contains A2ARestServerResource_v0_3
+                // a2a-java-sdk-jakarta-compat-0.3-rest.jar - contains delegate
+                getJarForClass(A2ARestServerResourceDelegate_v0_3.class),
+                // a2a-java-sdk-jakarta-compat-0.3-rest-web.jar - contains A2ARestServerResource_v0_3
                 getJarForClass(A2ARestServerResource_v0_3.class),
                 // v0.3 transport-rest
                 getJarForClass(RestHandler_v0_3.class),

@@ -131,6 +131,46 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-jsonrpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-jsonrpc-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-rest</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-rest-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-compat-0.3-jsonrpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-compat-0.3-jsonrpc-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-compat-0.3-rest</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-compat-0.3-rest-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.a2aproject.sdk</groupId>
                 <artifactId>a2a-java-sdk-tck-sut</artifactId>
                 <version>${version.sdk}</version>
@@ -235,8 +275,10 @@
         <module>examples</module>
         <module>common</module>
         <module>impl/jsonrpc</module>
+        <module>impl/jsonrpc-web</module>
         <module>impl/grpc</module>
         <module>impl/rest</module>
+        <module>impl/rest-web</module>
         <module>compat-0.3</module>
         <module>tests</module>
         <module>tck</module>
