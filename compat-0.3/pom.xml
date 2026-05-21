@@ -25,5 +25,6 @@
         <module>grpc</module>
         <module>multiversion-rest</module>
         <module>multiversion-jsonrpc</module>
+        <module>tck</module>
     </modules>
 </project>

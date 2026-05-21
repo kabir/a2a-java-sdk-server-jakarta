@@ -80,8 +80,57 @@ Once the server is up and running, run the TCK with the instructions in [a2aproj
 
 Be sure to set `TCK_STREAMING_TIMEOUT=4.0` when running the TCK to ensure the tests wait long enough to receive the events for streaming methods.
 
-Then to run the TCK, run the following command from the clone of 
+Then to run the TCK, run the following command from the clone of [a2aproject/a2a-tck](https://github.com/a2aproject/a2a-tck):
 
 ```shell
 ./run_tck.py --sut-url http://localhost:8080 --category all --transports jsonrpc,grpc,rest --compliance-report report.json
 ```
+
+## Running the v0.3 TCK
+
+Build the project:
+```bash
+mvn clean install -DskipTests
+```
+
+Start the v0.3 TCK server:
+```bash
+SUT_JSONRPC_URL=http://localhost:8080 SUT_GRPC_URL=http://localhost:9555 SUT_REST_URL=http://localhost:8080 compat-0.3/tck/target/wildfly/bin/standalone.sh --stability=preview
+```
+
+Then run the v0.3 TCK suite from your clone of [a2aproject/a2a-tck](https://github.com/a2aproject/a2a-tck), using the appropriate tag/branch for v0.3.
+
+## Running the Multiversion TCK
+
+The multiversion build enables both v0.3 and v1.0 protocol support in the same server. Build with the `multi-version` profile:
+
+```bash
+mvn clean install -DskipTests -Pmulti-version
+```
+
+This produces two multiversion WAR deployments:
+
+### v0.3 TCK against multiversion server
+
+Start the multiversion server from `compat-0.3/tck/`:
+```bash
+SUT_JSONRPC_URL=http://localhost:8080 SUT_GRPC_URL=http://localhost:9555 SUT_REST_URL=http://localhost:8080 compat-0.3/tck/target/wildfly/bin/standalone.sh --stability=preview
+```
+Then run the **v0.3 TCK** suite against it.
+
+### v1.0 TCK against multiversion server
+
+Start the multiversion server from `tck/`:
+```bash
+SUT_JSONRPC_URL=http://localhost:8080 SUT_GRPC_URL=http://localhost:9555 SUT_REST_URL=http://localhost:8080 tck/target/wildfly/bin/standalone.sh --stability=preview
+```
+Then run the **v1.0 TCK** suite against it.
+
+### Agent Card Handling
+
+Each multiversion server handles agent cards differently:
+
+- **`compat-0.3/tck` multiversion**: `DerivedAgentCardProducer` converts the v0.3 `AgentCard_v0_3` into a v1.0 `AgentCard`, copying `additionalInterfaces` to `supportedInterfaces` and calling `Compat03Fields.addCompat03FieldsIfAvailable()` to maintain backward compatibility fields.
+- **`tck` multiversion**: `StubAgentCardProducer_v0_3` produces a minimal `AgentCard_v0_3` to satisfy CDI injection for the v0.3 handlers. The v1.0 `AgentCard` from `TckAgentCardProducer` takes precedence.
+
+In both cases, the v0.3 conversion layer (`Convert_v0_3_To10RequestHandler`) converts incoming v0.3 requests to v1.0 format and delegates to the single `AgentExecutor`, so no separate executor is needed for v0.3 support.

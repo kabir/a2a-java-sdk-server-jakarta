@@ -6,36 +6,38 @@
 
     <parent>
         <groupId>org.wildfly.a2a</groupId>
-        <artifactId>a2a-java-sdk-jakarta-parent</artifactId>
+        <artifactId>a2a-java-sdk-jakarta-compat-0.3-parent</artifactId>
         <version>1.0.0.CR1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>a2a-java-sdk-jakarta-tck-wildfly</artifactId>
+    <artifactId>a2a-java-sdk-jakarta-compat-0.3-tck-wildfly</artifactId>
 
     <packaging>war</packaging>
 
-    <name>WildFly Extras - Java A2A SDK for Jakarta - TCK - WildFly Jar</name>
-    <description>Java SDK for the Agent2Agent Protocol (A2A) - SDK - Jakarta - TCK - WildFly Jar</description>
+    <name>WildFly Extras - Java A2A SDK for Jakarta - v0.3 Compat - TCK - WildFly Jar</name>
+    <description>Java SDK for the Agent2Agent Protocol (A2A) - SDK - Jakarta - v0.3 Compat - TCK - WildFly Jar</description>
 
     <dependencies>
-        <!--
-            Dependencies needed to build the application.
-        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>a2a-java-sdk-jakarta-jsonrpc</artifactId>
-            <version>${project.version}</version>
+            <artifactId>a2a-java-sdk-jakarta-compat-0.3-jsonrpc</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>a2a-java-sdk-jakarta-jsonrpc-web</artifactId>
-            <version>${project.version}</version>
+            <artifactId>a2a-java-sdk-jakarta-compat-0.3-jsonrpc-web</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>a2a-java-sdk-jakarta-grpc</artifactId>
-            <version>${project.version}</version>
-            <!-- Exclude gRPC core libraries as they are provided by WildFly's gRPC feature pack -->
+            <artifactId>a2a-java-sdk-jakarta-compat-0.3-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>a2a-java-sdk-jakarta-compat-0.3-rest-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>a2a-java-sdk-jakarta-compat-0.3-grpc</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>io.grpc</groupId>
@@ -53,48 +55,19 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>a2a-java-sdk-jakarta-rest</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>a2a-java-sdk-jakarta-rest-web</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!--
-            This is not strictly needed, but if you want to configure the a2a-java further as mentioned in
-            https://github.com/a2aproject/a2a-java/blob/main/README.md#4-configuration-system
-            via MicroProfile Config, this jar needs to be included.
-        -->
-        <dependency>
             <groupId>org.a2aproject.sdk</groupId>
             <artifactId>a2a-java-sdk-microprofile-config</artifactId>
             <scope>provided</scope>
         </dependency>
 
         <!--
-            Needed for the AgentExecutor which uses some utility classes from here
+            Include the v0.3 TCK server from the a2a-java project.
+            This provides the AgentExecutor and AgentCard producers for v0.3.
         -->
         <dependency>
             <groupId>org.a2aproject.sdk</groupId>
-            <artifactId>a2a-java-sdk-client</artifactId>
-        </dependency>
-
-        <!--
-            Include the TCK server from the a2a-java project.
-            This is the application we will be using, providing the AgentExecutor and the AgentCard.
-            For your own applications you should not use this dependency, but rather provide your own.
-        -->
-        <dependency>
-            <groupId>org.a2aproject.sdk</groupId>
-            <artifactId>a2a-java-sdk-tck-sut</artifactId>
+            <artifactId>a2a-compat-0.3-tck-server</artifactId>
             <exclusions>
-                <!--
-                    Exclude all dependencies, since we are managing what is included in the jar in the
-                    org.wildfly.extras.a2a:ctId>a2a-java-sdk-jakarta dependency.
-                -->
                 <exclusion>
                     <groupId>*</groupId>
                     <artifactId>*</artifactId>
@@ -102,14 +75,9 @@
             </exclusions>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
-            <!--
-                WildFly specific plugin to provision a WildFly server with the functionality required to
-                run our .war file.
-                It deploys the war renamed to 'ROOT.war' so that it is deployed under the root context, i.e. under '/'.
-                By default, this will be under http://localhost:8080/.
-            -->
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
@@ -120,7 +88,6 @@
                             <artifactId>wildfly-galleon-pack</artifactId>
                             <version>${version.wildfly}</version>
                         </feature-pack>
-                        <!-- Add gRPC feature pack -->
                         <feature-pack>
                             <groupId>org.wildfly.extras.grpc</groupId>
                             <artifactId>wildfly-grpc-feature-pack</artifactId>
@@ -135,21 +102,10 @@
                     <jboss-home>${jboss.home}</jboss-home>
                     <name>ROOT.war</name>
                     <provisioning-dir>${jboss.home}</provisioning-dir>
-                    <!-- Set stability level to preview for gRPC feature pack -->
                     <galleon-options>
                         <jboss-fork-embedded>true</jboss-fork-embedded>
                         <stability-level>preview</stability-level>
                     </galleon-options>
-                    <!-- CLI scripts are incompatible with preview stability level during provisioning -->
-                    <!--
-                    <packagingScripts>
-                        <packaging-script>
-                            <scripts>
-                                <script>./src/scripts/configure_logger.cli</script>
-                            </scripts>
-                        </packaging-script>
-                    </packagingScripts>
-                    -->
                 </configuration>
                 <executions>
                     <execution>
@@ -170,23 +126,23 @@
             <dependencies>
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-compat-0.3-jsonrpc</artifactId>
+                    <artifactId>a2a-java-sdk-jakarta-jsonrpc</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-compat-0.3-jsonrpc-web</artifactId>
+                    <artifactId>a2a-java-sdk-jakarta-jsonrpc-web</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-compat-0.3-rest</artifactId>
+                    <artifactId>a2a-java-sdk-jakarta-rest</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-compat-0.3-rest-web</artifactId>
+                    <artifactId>a2a-java-sdk-jakarta-rest-web</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-compat-0.3-grpc</artifactId>
+                    <artifactId>a2a-java-sdk-jakarta-grpc</artifactId>
                     <exclusions>
                         <exclusion>
                             <groupId>io.grpc</groupId>

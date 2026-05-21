@@ -177,6 +177,31 @@
             </dependency>
             <dependency>
                 <groupId>org.a2aproject.sdk</groupId>
+                <artifactId>a2a-compat-0.3-tck-server</artifactId>
+                <version>${version.sdk}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-grpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-compat-0.3-grpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-compat-0.3-multiversion-jsonrpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.a2a</groupId>
+                <artifactId>a2a-java-sdk-jakarta-compat-0.3-multiversion-rest</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.a2aproject.sdk</groupId>
                 <artifactId>a2a-java-sdk-compat-0.3-server-conversion</artifactId>
                 <version>${version.sdk}</version>
             </dependency>
