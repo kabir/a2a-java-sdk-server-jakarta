@@ -186,6 +186,10 @@ jobs:
           uv pip install -e .
         working-directory: a2a-tck
       - name: Start the WildFly SUT
+        env:
+          SUT_JSONRPC_URL: http://${{ env.SUT_HOST }}
+          SUT_REST_URL: http://${{ env.SUT_HOST }}
+          SUT_GRPC_URL: http://localhost:9555
         run: |
           mvn wildfly:start -B -Dversion.sdk=${SDK_VERSION} -pl compat-0.3/tck -Dstartup-timeout=120 -Dwildfly.serverArgs="--stability=preview" ${{ matrix.profile && format('-P{0}', matrix.profile) || '' }}
       - name: Run TCK
