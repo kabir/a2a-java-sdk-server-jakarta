@@ -169,20 +169,18 @@
             <id>multi-version</id>
             <dependencies>
                 <!--
-                    Exclude standalone v1.0 and v0.3 JAX-RS resources from the WAR.
-                    The multiversion modules handle all dispatching and serve the agent card.
-                    Without this, multiple @Path("/") resources compete for
-                    /.well-known/agent-card.json and RESTEasy may pick the wrong one.
+                    Exclude the standalone v1.0 JSON-RPC JAX-RS resource from the WAR.
+                    The multiversion JSON-RPC module at @Path("/") handles both v1.0
+                    and v0.3 JSON-RPC dispatching and serves the agent card.
+
+                    rest-web is NOT excluded: its @Path("/") resource serves v1.0 REST
+                    endpoints, while the multiversion REST module at @Path("/v1") only
+                    handles v0.3 REST. Both serve the same v1.0 agent card, so the
+                    duplicate /.well-known/agent-card.json endpoint is benign.
                 -->
                 <dependency>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>a2a-java-sdk-jakarta-jsonrpc-web</artifactId>
-                    <version>${project.version}</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-rest-web</artifactId>
                     <version>${project.version}</version>
                     <scope>provided</scope>
                 </dependency>
