@@ -54,11 +54,13 @@ jobs:
           else
             echo "IS_SNAPSHOT=false" >> "$GITHUB_ENV"
           fi
+      # TODO revert to a2aproject/a2a-java once jakarta-fixes-3 is merged to upstream main
       - name: Checkout a2a-java
         if: env.IS_SNAPSHOT == 'true'
         uses: actions/checkout@v6
         with:
-          repository: a2aproject/a2a-java
+          repository: kabir/a2a-java
+          ref: jakarta-fixes-3
           path: a2a-java
       - name: Checkout a2a-tck
         uses: actions/checkout@v6
@@ -153,11 +155,13 @@ jobs:
           else
             echo "IS_SNAPSHOT=false" >> "$GITHUB_ENV"
           fi
+      # TODO revert to a2aproject/a2a-java once jakarta-fixes-3 is merged to upstream main
       - name: Checkout a2a-java
         if: env.IS_SNAPSHOT == 'true'
         uses: actions/checkout@v6
         with:
-          repository: a2aproject/a2a-java
+          repository: kabir/a2a-java
+          ref: jakarta-fixes-3
           path: a2a-java
       - name: Checkout a2a-tck
         uses: actions/checkout@v6
