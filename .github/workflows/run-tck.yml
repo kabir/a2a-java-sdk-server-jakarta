@@ -93,6 +93,10 @@ jobs:
       - name: Start the WildFly SUT
         run: |
           mvn wildfly:start -B -Dversion.sdk=${SDK_VERSION} -pl tck -Dstartup-timeout=120 -Dwildfly.serverArgs="--stability=preview" ${{ matrix.profile && format('-P{0}', matrix.profile) || '' }}
+      - name: Verify agent card
+        run: |
+          echo "Agent card from http://${{ env.SUT_HOST }}/.well-known/agent-card.json:"
+          curl -s http://${{ env.SUT_HOST }}/.well-known/agent-card.json | python3 -m json.tool
       - name: Run TCK
         id: run-tck
         timeout-minutes: 5
@@ -192,6 +196,10 @@ jobs:
           SUT_GRPC_URL: http://localhost:9555
         run: |
           mvn wildfly:start -B -Dversion.sdk=${SDK_VERSION} -pl compat-0.3/tck -Dstartup-timeout=120 -Dwildfly.serverArgs="--stability=preview" ${{ matrix.profile && format('-P{0}', matrix.profile) || '' }}
+      - name: Verify agent card
+        run: |
+          echo "Agent card from http://${{ env.SUT_HOST }}/.well-known/agent-card.json:"
+          curl -s http://${{ env.SUT_HOST }}/.well-known/agent-card.json | python3 -m json.tool
       - name: Run TCK
         id: run-tck
         timeout-minutes: 5
