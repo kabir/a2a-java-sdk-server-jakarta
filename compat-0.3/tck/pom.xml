@@ -135,21 +135,29 @@
         <profile>
             <id>multi-version</id>
             <dependencies>
+                <!--
+                    Exclude standalone v0.3 and v1.0 JAX-RS resources from the WAR.
+                    The multiversion modules handle all dispatching and serve the agent card.
+                    Without this, multiple @Path("/") resources compete for
+                    /.well-known/agent-card.json and RESTEasy may pick the wrong one.
+                -->
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>a2a-java-sdk-jakarta-compat-0.3-jsonrpc-web</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>a2a-java-sdk-jakarta-compat-0.3-rest-web</artifactId>
+                    <scope>provided</scope>
+                </dependency>
                 <dependency>
                     <groupId>${project.groupId}</groupId>
                     <artifactId>a2a-java-sdk-jakarta-jsonrpc</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-jsonrpc-web</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>${project.groupId}</groupId>
                     <artifactId>a2a-java-sdk-jakarta-rest</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-rest-web</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>${project.groupId}</groupId>
