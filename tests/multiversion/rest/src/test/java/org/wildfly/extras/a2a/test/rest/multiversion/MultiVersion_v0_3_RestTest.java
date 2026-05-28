@@ -93,13 +93,13 @@ public class MultiVersion_v0_3_RestTest extends AbstractA2AServerServerTest_v0_3
                 getJarForClass(AnnotationsProto.class),
                 // guava.jar (required by a2a-java dependencies)
                 getJarForClass(ImmutableSet.class),
-                // a2a-java-sdk-jakarta-common.jar (contains SSESubscriber)
+                // a2a-jakarta-common.jar (contains SSESubscriber)
                 getJarForClass(SSESubscriber.class),
-                // a2a-java-sdk-jakarta-compat-0.3-multiversion-rest.jar - contains MultiVersionA2ARestServerResource
+                // a2a-jakarta-compat-0.3-multiversion-rest.jar - contains MultiVersionA2ARestServerResource
                 getJarForClass(MultiVersionA2ARestServerResource.class),
-                // a2a-java-sdk-jakarta-rest.jar - contains v1.0 delegate
+                // a2a-jakarta-rest.jar - contains v1.0 delegate
                 getJarForClass(A2ARestServerResourceDelegate.class),
-                // a2a-java-sdk-jakarta-compat-0.3-rest.jar - contains v0.3 delegate
+                // a2a-jakarta-compat-0.3-rest.jar - contains v0.3 delegate
                 getJarForClass(A2ARestServerResourceDelegate_v0_3.class),
                 // v0.3 transport-rest
                 getJarForClass(RestHandler_v0_3.class),

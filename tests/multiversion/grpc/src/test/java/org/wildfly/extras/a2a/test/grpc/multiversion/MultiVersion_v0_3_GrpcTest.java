@@ -83,15 +83,15 @@ public class MultiVersion_v0_3_GrpcTest extends AbstractA2AServerServerTest_v0_3
         JavaArchive v03TestJar = getJarForClass(AbstractA2AServerServerTest_v0_3.class);
 
         final JavaArchive[] libraries = List.of(
-                // a2a-java-sdk-jakarta-grpc.jar (v1.0)
+                // a2a-jakarta-grpc.jar (v1.0)
                 getJarForClass(WildFlyGrpcHandler.class),
-                // a2a-java-sdk-jakarta-compat-0.3-grpc.jar (v0.3)
+                // a2a-jakarta-compat-0.3-grpc.jar (v0.3)
                 getJarForClass(WildFlyGrpcHandler_v0_3.class),
-                // a2a-java-sdk-jakarta-compat-0.3-multiversion-jsonrpc.jar - needed for agent card endpoint
+                // a2a-jakarta-compat-0.3-multiversion-jsonrpc.jar - needed for agent card endpoint
                 getJarForClass(MultiVersionA2AServerResource.class),
-                // a2a-java-sdk-jakarta-jsonrpc.jar - contains v1.0 delegate
+                // a2a-jakarta-jsonrpc.jar - contains v1.0 delegate
                 getJarForClass(A2AServerResourceDelegate.class),
-                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc.jar - contains v0.3 delegate
+                // a2a-jakarta-compat-0.3-jsonrpc.jar - contains v0.3 delegate
                 getJarForClass(A2AServerResourceDelegate_v0_3.class),
                 // v1.0 transport-jsonrpc (needed by MultiVersionA2AServerResource)
                 getJarForClass(JSONRPCHandler.class),
@@ -144,7 +144,7 @@ public class MultiVersion_v0_3_GrpcTest extends AbstractA2AServerServerTest_v0_3
                 getJarForClass(GrpcTransportProvider_v0_3.class),
                 // a2a-java-sdk-compat-0.3-server-conversion test-jar (v0.3 CDI producers for testing)
                 v03TestJar,
-                // a2a-java-sdk-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
+                // a2a-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
                 getJarForClass(AsyncManagedExecutorServiceProducer.class)).toArray(JavaArchive[]::new);
 
         // Create MANIFEST.MF with gRPC module dependencies

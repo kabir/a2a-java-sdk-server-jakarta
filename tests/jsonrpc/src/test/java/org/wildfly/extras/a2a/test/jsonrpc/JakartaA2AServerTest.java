@@ -96,9 +96,9 @@ public class JakartaA2AServerTest extends AbstractA2AServerTest {
                 getJarForClass(AnnotationsProto.class),
                 // guava.jar (required by a2a-java dependencies)
                 getJarForClass(ImmutableSet.class),
-                // a2a-java-sdk-jakarta-jsonrpc.jar - contains delegate and WildFlyJSONRPCTransportMetadata
+                // a2a-jakarta-jsonrpc.jar - contains delegate and WildFlyJSONRPCTransportMetadata
                 getJarForClass(WildFlyJSONRPCTransportMetadata.class),
-                // a2a-java-sdk-jakarta-jsonrpc-web.jar - contains A2AServerResource
+                // a2a-jakarta-jsonrpc-web.jar - contains A2AServerResource
                 getJarForClass(A2AServerResource.class),
                 //a2a-java-sdk-microprofile-config.jar (needed to configure a2a-java settings via MP Config)
                 getJarForClass(MicroProfileConfigProvider.class),
@@ -111,7 +111,7 @@ public class JakartaA2AServerTest extends AbstractA2AServerTest {
                 getJarForClass(ClientTransport.class),
                 // a2a-java-sdk-client-transport-jsonrpc.jar (JSONRPC client transport)
                 getJarForClass(JSONRPCTransportProvider.class),
-                // a2a-java-sdk-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
+                // a2a-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
                 getJarForClass(AsyncManagedExecutorServiceProducer.class)).toArray(new JavaArchive[0]);
 
 

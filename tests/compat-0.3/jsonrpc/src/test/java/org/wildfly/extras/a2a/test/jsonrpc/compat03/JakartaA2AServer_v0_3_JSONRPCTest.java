@@ -91,9 +91,9 @@ public class JakartaA2AServer_v0_3_JSONRPCTest extends AbstractA2AServerServerTe
                 getJarForClass(AnnotationsProto.class),
                 // guava.jar (required by a2a-java dependencies)
                 getJarForClass(ImmutableSet.class),
-                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc.jar - contains delegate
+                // a2a-jakarta-compat-0.3-jsonrpc.jar - contains delegate
                 getJarForClass(A2AServerResourceDelegate_v0_3.class),
-                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc-web.jar - contains A2AServerResource_v0_3
+                // a2a-jakarta-compat-0.3-jsonrpc-web.jar - contains A2AServerResource_v0_3
                 getJarForClass(A2AServerResource_v0_3.class),
                 // v0.3 transport-jsonrpc
                 getJarForClass(JSONRPCHandler_v0_3.class),
@@ -114,7 +114,7 @@ public class JakartaA2AServer_v0_3_JSONRPCTest extends AbstractA2AServerServerTe
                 getJarForClass(JSONRPCTransport_v0_3.class),
                 // a2a-java-sdk-compat-0.3-server-conversion test-jar (v0.3 CDI producers for testing)
                 v03TestJar,
-                // a2a-java-sdk-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
+                // a2a-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
                 getJarForClass(AsyncManagedExecutorServiceProducer.class)).toArray(JavaArchive[]::new);
 
 

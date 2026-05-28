@@ -71,7 +71,7 @@ public class WildFlyA2AGrpcTestCase extends AbstractA2AServerTest {
     @Deployment
     public static WebArchive createDeployment() throws Exception {
         final JavaArchive[] libraries = List.of(
-                // a2a-java-sdk-jakarta-grpc.jar - contains WildFlyGrpcTransportMetadata
+                // a2a-jakarta-grpc.jar - contains WildFlyGrpcTransportMetadata
                 getJarForClass(WildFlyGrpcHandler.class),
                 // a2a-java-sdk-client.jar
                 getJarForClass(A2A.class),
@@ -110,7 +110,7 @@ public class WildFlyA2AGrpcTestCase extends AbstractA2AServerTest {
                 getJarForClass(ClientTransport.class),
                 // a2a-java-sdk-client-transport-grpc.jar (gRPC client transport)
                 getJarForClass(GrpcTransportProvider.class),
-                // a2a-java-sdk-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
+                // a2a-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
                 getJarForClass(AsyncManagedExecutorServiceProducer.class)).toArray(new JavaArchive[0]);
 
         // Create MANIFEST.MF with gRPC module dependencies

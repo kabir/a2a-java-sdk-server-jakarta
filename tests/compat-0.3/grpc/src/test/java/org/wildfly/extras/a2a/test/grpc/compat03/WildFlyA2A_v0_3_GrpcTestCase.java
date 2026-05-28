@@ -82,11 +82,11 @@ public class WildFlyA2A_v0_3_GrpcTestCase extends AbstractA2AServerServerTest_v0
         specGrpcJar.delete("/org/a2aproject/sdk/grpc/A2AServiceGrpc$A2AServiceImplBase.class");
 
         final JavaArchive[] libraries = List.of(
-                // a2a-java-sdk-jakarta-compat-0.3-grpc.jar - contains WildFlyGrpcHandler_v0_3
+                // a2a-jakarta-compat-0.3-grpc.jar - contains WildFlyGrpcHandler_v0_3
                 getJarForClass(WildFlyGrpcHandler_v0_3.class),
-                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc.jar - contains delegate
+                // a2a-jakarta-compat-0.3-jsonrpc.jar - contains delegate
                 getJarForClass(A2AServerResourceDelegate_v0_3.class),
-                // a2a-java-sdk-jakarta-compat-0.3-jsonrpc-web.jar - needed for agent card endpoint
+                // a2a-jakarta-compat-0.3-jsonrpc-web.jar - needed for agent card endpoint
                 getJarForClass(A2AServerResource_v0_3.class),
                 // v0.3 transport-jsonrpc (needed by A2AServerResource_v0_3)
                 getJarForClass(JSONRPCHandler_v0_3.class),
@@ -133,7 +133,7 @@ public class WildFlyA2A_v0_3_GrpcTestCase extends AbstractA2AServerServerTest_v0
                 getJarForClass(GrpcTransportProvider_v0_3.class),
                 // a2a-java-sdk-compat-0.3-server-conversion test-jar (v0.3 CDI producers for testing)
                 v03TestJar,
-                // a2a-java-sdk-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
+                // a2a-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
                 getJarForClass(AsyncManagedExecutorServiceProducer.class)).toArray(JavaArchive[]::new);
 
         // Create MANIFEST.MF with gRPC module dependencies

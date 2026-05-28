@@ -92,11 +92,11 @@ public class JakartaA2AServer_v0_3_RestTest extends AbstractA2AServerServerTest_
                 getJarForClass(AnnotationsProto.class),
                 // guava.jar (required by a2a-java dependencies)
                 getJarForClass(ImmutableSet.class),
-                // a2a-java-sdk-jakarta-common.jar (contains SSESubscriber)
+                // a2a-jakarta-common.jar (contains SSESubscriber)
                 getJarForClass(SSESubscriber.class),
-                // a2a-java-sdk-jakarta-compat-0.3-rest.jar - contains delegate
+                // a2a-jakarta-compat-0.3-rest.jar - contains delegate
                 getJarForClass(A2ARestServerResourceDelegate_v0_3.class),
-                // a2a-java-sdk-jakarta-compat-0.3-rest-web.jar - contains A2ARestServerResource_v0_3
+                // a2a-jakarta-compat-0.3-rest-web.jar - contains A2ARestServerResource_v0_3
                 getJarForClass(A2ARestServerResource_v0_3.class),
                 // v0.3 transport-rest
                 getJarForClass(RestHandler_v0_3.class),

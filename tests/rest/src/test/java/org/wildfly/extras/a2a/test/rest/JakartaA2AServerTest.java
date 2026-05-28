@@ -92,11 +92,11 @@ public class JakartaA2AServerTest extends AbstractA2AServerTest {
                 getJarForClass(AnnotationsProto.class),
                 // guava.jar (required by a2a-java dependencies)
                 getJarForClass(ImmutableSet.class),
-                // a2a-java-sdk-jakarta-common.jar - contains SSESubscriber
+                // a2a-jakarta-common.jar - contains SSESubscriber
                 getJarForClass(SSESubscriber.class),
-                // a2a-java-sdk-jakarta-rest.jar - contains delegate
+                // a2a-jakarta-rest.jar - contains delegate
                 getJarForClass(A2ARestServerResourceDelegate.class),
-                // a2a-java-sdk-jakarta-rest-web.jar - contains A2ARestServerResource
+                // a2a-jakarta-rest-web.jar - contains A2ARestServerResource
                 getJarForClass(A2ARestServerResource.class),
                 //a2a-java-sdk-microprofile-config.jar (needed to configure a2a-java settings via MP Config)
                 getJarForClass(MicroProfileConfigProvider.class),
