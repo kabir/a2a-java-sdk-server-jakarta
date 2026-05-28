@@ -23,6 +23,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>a2a-java-sdk-jakarta-common</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- v1.0 Jakarta gRPC module -->
         <dependency>
             <groupId>${project.groupId}</groupId>

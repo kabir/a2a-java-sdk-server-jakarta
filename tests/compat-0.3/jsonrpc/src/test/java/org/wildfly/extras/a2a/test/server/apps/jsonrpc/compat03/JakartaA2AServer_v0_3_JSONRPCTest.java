@@ -34,6 +34,7 @@ import org.jboss.arquillian.junit5.container.annotation.ArquillianTest;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.wildfly.extras.a2a.server.apps.common.AsyncManagedExecutorServiceProducer;
 import org.wildfly.extras.a2a.server.apps.jsonrpc.compat03.A2AServerResource_v0_3;
 import org.wildfly.extras.a2a.server.apps.jsonrpc.compat03.A2AServerResourceDelegate_v0_3;
 
@@ -112,7 +113,9 @@ public class JakartaA2AServer_v0_3_JSONRPCTest extends AbstractA2AServerServerTe
                 // a2a-java-sdk-compat-0.3-client-transport-jsonrpc.jar (v0.3 JSONRPC client transport)
                 getJarForClass(JSONRPCTransport_v0_3.class),
                 // a2a-java-sdk-compat-0.3-server-conversion test-jar (v0.3 CDI producers for testing)
-                v03TestJar).toArray(JavaArchive[]::new);
+                v03TestJar,
+                // a2a-java-sdk-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
+                getJarForClass(AsyncManagedExecutorServiceProducer.class)).toArray(JavaArchive[]::new);
 
 
         WebArchive archive = ShrinkWrap.create(WebArchive.class, "ROOT.war")

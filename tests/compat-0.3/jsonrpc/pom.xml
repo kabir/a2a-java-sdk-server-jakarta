@@ -18,6 +18,11 @@
     <description>Jakarta SDK for the Agent2Agent Protocol (A2A) - v0.3 Compat - JSON-RPC Tests</description>
 
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>a2a-java-sdk-jakarta-common</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- v0.3 Jakarta JSONRPC module -->
         <dependency>
             <groupId>${project.groupId}</groupId>

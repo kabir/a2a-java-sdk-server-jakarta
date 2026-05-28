@@ -40,6 +40,7 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.jupiter.api.AfterAll;
+import org.wildfly.extras.a2a.server.apps.common.AsyncManagedExecutorServiceProducer;
 import org.wildfly.extras.a2a.server.apps.grpc.compat03.WildFlyGrpcHandler_v0_3;
 import org.wildfly.extras.a2a.server.apps.jsonrpc.compat03.A2AServerResourceDelegate_v0_3;
 import org.wildfly.extras.a2a.server.apps.jsonrpc.compat03.A2AServerResource_v0_3;
@@ -131,7 +132,9 @@ public class WildFlyA2A_v0_3_GrpcTestCase extends AbstractA2AServerServerTest_v0
                 // a2a-java-sdk-compat-0.3-client-transport-grpc.jar (v0.3 gRPC client transport)
                 getJarForClass(GrpcTransportProvider_v0_3.class),
                 // a2a-java-sdk-compat-0.3-server-conversion test-jar (v0.3 CDI producers for testing)
-                v03TestJar).toArray(JavaArchive[]::new);
+                v03TestJar,
+                // a2a-java-sdk-jakarta-common.jar (ManagedExecutor for RequestScoped bean injection into AgentExecutors)
+                getJarForClass(AsyncManagedExecutorServiceProducer.class)).toArray(JavaArchive[]::new);
 
         // Create MANIFEST.MF with gRPC module dependencies
         // These are provided by WildFly's gRPC feature pack and should not be packaged in WAR

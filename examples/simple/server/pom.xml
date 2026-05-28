@@ -115,7 +115,7 @@
                 -->
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-jsonrpc</artifactId>
+                    <artifactId>a2a-java-sdk-jakarta-jsonrpc-web</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -155,7 +155,7 @@
                 -->
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-jsonrpc</artifactId>
+                    <artifactId>a2a-java-sdk-jakarta-jsonrpc-web</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -220,7 +220,7 @@
                 -->
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-rest</artifactId>
+                    <artifactId>a2a-java-sdk-jakarta-rest-web</artifactId>
                     <version>${project.version}</version>
                 </dependency>
 
@@ -231,7 +231,7 @@
                 -->
                 <dependency>
                     <groupId>${project.groupId}</groupId>
-                    <artifactId>a2a-java-sdk-jakarta-jsonrpc</artifactId>
+                    <artifactId>a2a-java-sdk-jakarta-jsonrpc-web</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
